@@ -1,0 +1,36 @@
+{
+  "name": "@qubickit/core",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for interacting with Qubic nodes via Bun/Node runtimes.",
+  "keywords": [
+    "qubic",
+    "sdk",
+    "typescript",
+    "bun",
+    "node"
+  ],
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "type": "module",
+  "private": false,
+  "scripts": {
+    "build": "bun build ./src/index.ts --target bun --outdir dist",
+    "dev": "bun run ./src/index.ts",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.2",
+    "typescript": "^5.9.3"
+  }
+}
