@@ -1,9 +1,9 @@
-import { ArchiveClient } from "./clients/http/archiveClient";
-import { LiveServiceClient } from "./clients/http/liveServiceClient";
-import { QueryServiceClient } from "./clients/http/queryServiceClient";
-import type { ClientConfig } from "./config";
-import { HttpConnector } from "./connectors/nodeConnector";
-import type { HttpConnectorOptions } from "./connectors/nodeConnector";
+import { ArchiveClient } from "@clients/http/archiveClient";
+import { LiveServiceClient } from "@clients/http/liveServiceClient";
+import { QueryServiceClient } from "@clients/http/queryServiceClient";
+import type { HttpConnectorOptions } from "@connectors/nodeConnector";
+import { HttpConnector } from "@connectors/nodeConnector";
+import type { ClientConfig } from "@src/config";
 
 export * from "./clients";
 export * from "./config";
@@ -15,9 +15,7 @@ export interface CreateConnectorOptions
   extends ClientConfig,
     Omit<HttpConnectorOptions, "liveClient" | "queryClient"> {}
 
-export function createHttpConnector(
-  options: CreateConnectorOptions = {},
-): HttpConnector {
+export function createHttpConnector(options: CreateConnectorOptions = {}): HttpConnector {
   const liveClient = new LiveServiceClient({
     baseUrl: options.liveBaseUrl,
   });

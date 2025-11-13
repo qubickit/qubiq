@@ -7,9 +7,7 @@ import { z } from "zod";
 
 const HEX_32_BYTES = /^[0-9a-fA-F]{64}$/;
 const HEX_64_BYTES = /^[0-9a-fA-F]{128}$/;
-const nonNegativeBigInt = z
-  .bigint()
-  .refine((value) => value >= BigInt(0), "value must be >= 0");
+const nonNegativeBigInt = z.bigint().refine((value) => value >= BigInt(0), "value must be >= 0");
 const nonNegativeInt = z.number().int().nonnegative();
 
 /** Enumeration of known network message types (subset). */
@@ -72,20 +70,14 @@ export interface NetworkMessage<TPayload = unknown> {
 
 /** Canonical transaction layout (80 byte header + payload + signature). */
 export const TransactionSchema = z.object({
-  sourcePublicKey: z
-    .string()
-    .regex(HEX_32_BYTES, "sourcePublicKey must be 32-byte hex"),
-  destinationPublicKey: z
-    .string()
-    .regex(HEX_32_BYTES, "destinationPublicKey must be 32-byte hex"),
+  sourcePublicKey: z.string().regex(HEX_32_BYTES, "sourcePublicKey must be 32-byte hex"),
+  destinationPublicKey: z.string().regex(HEX_32_BYTES, "destinationPublicKey must be 32-byte hex"),
   amount: nonNegativeBigInt,
   tick: nonNegativeInt,
   inputType: nonNegativeInt.max(0xffff),
   inputSize: nonNegativeInt.max(0xffff),
   inputData: z.instanceof(Uint8Array).optional(),
-  signature: z
-    .string()
-    .regex(HEX_64_BYTES, "signature must be 64-byte (128 hex chars)"),
+  signature: z.string().regex(HEX_64_BYTES, "signature must be 64-byte (128 hex chars)"),
 });
 
 export type Transaction = z.infer<typeof TransactionSchema>;
@@ -117,18 +109,14 @@ export const ProposalVariableOptionsSchema = z.object({
   value: z.number().int(),
 });
 
-export type ProposalVariableOptions = z.infer<
-  typeof ProposalVariableOptionsSchema
->;
+export type ProposalVariableOptions = z.infer<typeof ProposalVariableOptionsSchema>;
 
 export const ProposalTransferOptionsSchema = z.object({
   destination: z.string().regex(HEX_32_BYTES, "destination must be 32-byte hex"),
   amount: nonNegativeBigInt,
 });
 
-export type ProposalTransferOptions = z.infer<
-  typeof ProposalTransferOptionsSchema
->;
+export type ProposalTransferOptions = z.infer<typeof ProposalTransferOptionsSchema>;
 
 export const ProposalDataSchema = z.object({
   epoch: nonNegativeInt,
@@ -155,27 +143,21 @@ export const ShareholderProposalFeesSchema = z.object({
   setVoteFee: nonNegativeBigInt,
 });
 
-export type ShareholderProposalFees = z.infer<
-  typeof ShareholderProposalFeesSchema
->;
+export type ShareholderProposalFees = z.infer<typeof ShareholderProposalFeesSchema>;
 
 export const ProposalIndicesRequestSchema = z.object({
   activeProposals: z.boolean(),
   prevProposalIndex: z.number().int().default(-1),
 });
 
-export type ProposalIndicesRequest = z.infer<
-  typeof ProposalIndicesRequestSchema
->;
+export type ProposalIndicesRequest = z.infer<typeof ProposalIndicesRequestSchema>;
 
 export const ProposalIndicesResponseSchema = z.object({
   numOfIndices: z.number().int().min(0).max(64),
   indices: z.array(z.number().int()).max(64),
 });
 
-export type ProposalIndicesResponse = z.infer<
-  typeof ProposalIndicesResponseSchema
->;
+export type ProposalIndicesResponse = z.infer<typeof ProposalIndicesResponseSchema>;
 
 export const ShareholderVotingSummarySchema = z.object({
   proposalIndex: z.number().int(),
@@ -183,6 +165,4 @@ export const ShareholderVotingSummarySchema = z.object({
   quorumReached: z.boolean(),
 });
 
-export type ShareholderVotingSummary = z.infer<
-  typeof ShareholderVotingSummarySchema
->;
+export type ShareholderVotingSummary = z.infer<typeof ShareholderVotingSummarySchema>;

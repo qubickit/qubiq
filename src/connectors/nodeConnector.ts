@@ -1,21 +1,16 @@
-import { LiveServiceClient } from "../clients/http/liveServiceClient";
-import { QueryServiceClient } from "../clients/http/queryServiceClient";
+import { LiveServiceClient } from "@clients/http/liveServiceClient";
+import { QueryServiceClient } from "@clients/http/queryServiceClient";
 import type {
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
   QueryServiceTickResponse,
   TickInfo,
   TickInfoResponse,
-} from "../types";
+} from "@types";
 
 type Listener<T> = (payload: T) => void;
 
-export type ConnectorStatus =
-  | "idle"
-  | "connecting"
-  | "ready"
-  | "error"
-  | "closed";
+export type ConnectorStatus = "idle" | "connecting" | "ready" | "error" | "closed";
 
 export interface ConnectorEventMap extends Record<string, unknown> {
   status: ConnectorStatus;
@@ -23,13 +18,8 @@ export interface ConnectorEventMap extends Record<string, unknown> {
   error: Error;
 }
 
-export abstract class BaseConnector<
-  Events extends Record<string, unknown> = ConnectorEventMap,
-> {
-  private readonly listeners = new Map<
-    keyof Events,
-    Set<Listener<Events[keyof Events]>>
-  >();
+export abstract class BaseConnector<Events extends Record<string, unknown> = ConnectorEventMap> {
+  private readonly listeners = new Map<keyof Events, Set<Listener<Events[keyof Events]>>>();
   protected status: ConnectorStatus = "idle";
 
   getStatus(): ConnectorStatus {
@@ -55,7 +45,9 @@ export abstract class BaseConnector<
   protected emit<K extends keyof Events>(type: K, payload: Events[K]): void {
     const handlers = this.listeners.get(type);
     if (!handlers) return;
-    handlers.forEach((handler) => handler(payload));
+    handlers.forEach((handler) => {
+      handler(payload);
+    });
   }
 
   protected setStatus(status: ConnectorStatus): void {

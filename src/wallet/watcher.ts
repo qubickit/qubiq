@@ -1,5 +1,5 @@
-import { LiveServiceClient } from "../clients/http/liveServiceClient";
-import type { BalanceRecord, BalanceResponse } from "../types";
+import { LiveServiceClient } from "@clients/http/liveServiceClient";
+import type { BalanceRecord, BalanceResponse } from "@types";
 
 type Listener<T> = (payload: T) => void;
 
@@ -69,9 +69,7 @@ export class WalletWatcher {
   }
 
   private async pollOnce(): Promise<void> {
-    const response: BalanceResponse = await this.client.getBalance(
-      this.identity,
-    );
+    const response: BalanceResponse = await this.client.getBalance(this.identity);
     const current = response.balance;
     if (!this.lastBalance || hasBalanceChanged(this.lastBalance, current)) {
       this.emit("balanceChanged", {
@@ -82,13 +80,12 @@ export class WalletWatcher {
     }
   }
 
-  private emit<K extends keyof WalletWatcherEventMap>(
-    type: K,
-    payload: WalletWatcherEventMap[K],
-  ) {
+  private emit<K extends keyof WalletWatcherEventMap>(type: K, payload: WalletWatcherEventMap[K]) {
     const handlers = this.listeners.get(type);
     if (!handlers) return;
-    handlers.forEach((handler) => handler(payload));
+    handlers.forEach((handler) => {
+      handler(payload);
+    });
   }
 }
 

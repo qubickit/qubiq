@@ -55,7 +55,10 @@ export interface TransactionSigner {
 }
 
 export class Wallet {
-  constructor(private readonly keys: WalletKeys, private readonly signer: TransactionSigner) {}
+  constructor(
+    private readonly keys: WalletKeys,
+    private readonly signer: TransactionSigner,
+  ) {}
 
   get identity(): string {
     return this.keys.identity;
