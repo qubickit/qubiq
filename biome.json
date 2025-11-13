@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.5/schema.json",
+  "files": {
+    "includes": [
+      "**/src/**",
+      "**/tests/**",
+      "**/docs/**",
+      "**/bunfig.toml",
+      "**/package.json",
+      "**/tsconfig.json",
+      "**/README.md",
+      "!**/node_modules",
+      "!**/dist"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}

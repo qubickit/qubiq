@@ -1,0 +1,7 @@
+[alias]
+"@src/*" = "./src/*"
+"@clients/*" = "./src/clients/*"
+"@connectors/*" = "./src/connectors/*"
+"@types" = "./src/types/index.ts"
+"@types/*" = "./src/types/*"
+"@wallet/*" = "./src/wallet/*"

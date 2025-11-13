@@ -8,11 +8,20 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "types": ["bun"],
-    "rootDir": "src",
+    "rootDir": ".",
 
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@clients/*": ["src/clients/*"],
+      "@connectors/*": ["src/connectors/*"],
+      "@types": ["src/types/index.ts"],
+      "@types/*": ["src/types/*"],
+      "@wallet/*": ["src/wallet/*"]
+    },
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
@@ -28,5 +37,5 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }

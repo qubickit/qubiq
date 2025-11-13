@@ -4,6 +4,18 @@ const nonNegativeInt = z.number().int().nonnegative();
 const positiveInt = z.number().int().positive();
 const nonEmptyString = z.string().min(1);
 
+const IDENTITY_PATTERN = /^[A-Z]{60}$/;
+const HASH_PATTERN = /^[a-z]{60}$/;
+const PRIVATE_KEY_PATTERN = /^[a-z]{55}$/;
+
+export const IdentityStringSchema = z
+  .string()
+  .regex(IDENTITY_PATTERN, "identity must be 60 uppercase letters");
+export const HashStringSchema = z.string().regex(HASH_PATTERN, "hash must be 60 lowercase letters");
+export const PrivateKeyStringSchema = z
+  .string()
+  .regex(PRIVATE_KEY_PATTERN, "private key must be 55 lowercase letters");
+
 export const TickInfoSchema = z.object({
   tick: nonNegativeInt,
   duration: positiveInt,
@@ -18,7 +30,7 @@ export const TickInfoResponseSchema = z.object({
 export type TickInfoResponse = z.infer<typeof TickInfoResponseSchema>;
 
 export const BalanceRecordSchema = z.object({
-  id: nonEmptyString,
+  id: IdentityStringSchema,
   balance: nonEmptyString,
   validForTick: nonNegativeInt,
   latestIncomingTransferTick: nonNegativeInt,
@@ -38,9 +50,7 @@ export type BalanceResponse = z.infer<typeof BalanceResponseSchema>;
 export const BroadcastTransactionResponseSchema = z.object({
   transactionId: nonEmptyString,
 });
-export type BroadcastTransactionResponse = z.infer<
-  typeof BroadcastTransactionResponseSchema
->;
+export type BroadcastTransactionResponse = z.infer<typeof BroadcastTransactionResponseSchema>;
 
 export const BlockHeightResponseSchema = z.object({
   blockHeight: nonNegativeInt,
@@ -64,9 +74,9 @@ export interface QuerySmartContractResponse<T = unknown> {
 
 export const ArchiveTransactionSchema = z.object({
   id: nonEmptyString,
-  hash: nonEmptyString,
-  source: nonEmptyString,
-  destination: nonEmptyString,
+  hash: HashStringSchema,
+  source: IdentityStringSchema,
+  destination: IdentityStringSchema,
   tick: nonNegativeInt,
   timestamp: nonEmptyString,
   amount: nonEmptyString,
@@ -81,76 +91,60 @@ export type ArchiveTransaction = z.infer<typeof ArchiveTransactionSchema>;
 export const ArchiveTransactionResponseSchema = z.object({
   transaction: ArchiveTransactionSchema,
 });
-export type ArchiveTransactionResponse = z.infer<
-  typeof ArchiveTransactionResponseSchema
->;
+export type ArchiveTransactionResponse = z.infer<typeof ArchiveTransactionResponseSchema>;
 
 export const IdentityTransferRecordSchema = z.object({
-  source: nonEmptyString,
-  destination: nonEmptyString,
+  source: IdentityStringSchema,
+  destination: IdentityStringSchema,
   amount: nonEmptyString,
   tick: nonNegativeInt,
-  hash: nonEmptyString,
+  hash: HashStringSchema,
 });
-export type IdentityTransferRecord = z.infer<
-  typeof IdentityTransferRecordSchema
->;
+export type IdentityTransferRecord = z.infer<typeof IdentityTransferRecordSchema>;
 
 export const IdentityTransfersResponseSchema = z.object({
-  identity: nonEmptyString,
+  identity: IdentityStringSchema,
   transfers: z.array(IdentityTransferRecordSchema),
 });
-export type IdentityTransfersResponse = z.infer<
-  typeof IdentityTransfersResponseSchema
->;
+export type IdentityTransfersResponse = z.infer<typeof IdentityTransfersResponseSchema>;
 
 export const TickTransactionsResponseSchema = z.object({
   tickNumber: nonNegativeInt,
   transactions: z.array(ArchiveTransactionSchema),
 });
-export type TickTransactionsResponse = z.infer<
-  typeof TickTransactionsResponseSchema
->;
+export type TickTransactionsResponse = z.infer<typeof TickTransactionsResponseSchema>;
 
 export const TransactionStatusResponseSchema = z.object({
   txId: nonEmptyString,
   status: nonEmptyString,
   tickNumber: nonNegativeInt.optional(),
 });
-export type TransactionStatusResponse = z.infer<
-  typeof TransactionStatusResponseSchema
->;
+export type TransactionStatusResponse = z.infer<typeof TransactionStatusResponseSchema>;
 
 export const EpochComputorsResponseSchema = z.object({
   epoch: nonNegativeInt,
   computors: z.array(nonEmptyString),
 });
-export type EpochComputorsResponse = z.infer<
-  typeof EpochComputorsResponseSchema
->;
+export type EpochComputorsResponse = z.infer<typeof EpochComputorsResponseSchema>;
 
 export const QueryServiceTickResponseSchema = z.object({
   tickNumber: nonNegativeInt,
   epoch: nonNegativeInt,
   intervalInitialTick: nonNegativeInt,
 });
-export type QueryServiceTickResponse = z.infer<
-  typeof QueryServiceTickResponseSchema
->;
+export type QueryServiceTickResponse = z.infer<typeof QueryServiceTickResponseSchema>;
 
 export const ProcessedTickIntervalSchema = z.object({
   epoch: nonNegativeInt,
   firstTick: nonNegativeInt,
   lastTick: nonNegativeInt,
 });
-export type ProcessedTickInterval = z.infer<
-  typeof ProcessedTickIntervalSchema
->;
+export type ProcessedTickInterval = z.infer<typeof ProcessedTickIntervalSchema>;
 
 export const ComputorsListSchema = z.object({
   epoch: nonNegativeInt,
   tickNumber: nonNegativeInt,
-  identities: z.array(nonEmptyString),
+  identities: z.array(IdentityStringSchema),
   signature: z.string().optional(),
 });
 export type ComputorsList = z.infer<typeof ComputorsListSchema>;
@@ -162,7 +156,7 @@ export const QueryServiceTickDataSchema = z.object({
   timestamp: nonEmptyString,
   varStruct: z.string().optional(),
   timeLock: z.string().optional(),
-  transactionHashes: z.array(nonEmptyString).optional(),
+  transactionHashes: z.array(HashStringSchema).optional(),
   contractFees: z.array(nonEmptyString).optional(),
   signature: z.string().optional(),
 });
@@ -188,7 +182,7 @@ export const PaginationOptionsSchema = z.object({
 export type PaginationOptions = z.infer<typeof PaginationOptionsSchema>;
 
 export const QueryTransactionsByIdentityRequestSchema = z.object({
-  identity: nonEmptyString,
+  identity: IdentityStringSchema,
   limit: positiveInt.optional(),
   page: nonNegativeInt.optional(),
 });
@@ -197,32 +191,24 @@ export type QueryTransactionsByIdentityRequest = z.infer<
 >;
 
 export const QueryTransactionsByHashRequestSchema = z.object({
-  hash: nonEmptyString,
+  hash: HashStringSchema,
 });
-export type QueryTransactionsByHashRequest = z.infer<
-  typeof QueryTransactionsByHashRequestSchema
->;
+export type QueryTransactionsByHashRequest = z.infer<typeof QueryTransactionsByHashRequestSchema>;
 
 export const QueryTransactionsByTickRequestSchema = z.object({
   tickNumber: nonNegativeInt,
 });
-export type QueryTransactionsByTickRequest = z.infer<
-  typeof QueryTransactionsByTickRequestSchema
->;
+export type QueryTransactionsByTickRequest = z.infer<typeof QueryTransactionsByTickRequestSchema>;
 
 export const QueryComputorListRequestSchema = z.object({
   epoch: nonNegativeInt,
 });
-export type QueryComputorListRequest = z.infer<
-  typeof QueryComputorListRequestSchema
->;
+export type QueryComputorListRequest = z.infer<typeof QueryComputorListRequestSchema>;
 
 export const ComputorListsResponseSchema = z.object({
   computorsLists: z.array(ComputorsListSchema),
 });
-export type ComputorListsResponse = z.infer<
-  typeof ComputorListsResponseSchema
->;
+export type ComputorListsResponse = z.infer<typeof ComputorListsResponseSchema>;
 
 export const QueryTickDataRequestSchema = z.object({
   tickNumber: nonNegativeInt,
@@ -247,8 +233,6 @@ export const TransactionsForIdentityResponseSchema = z.object({
     .optional(),
   transactions: z.array(ArchiveTransactionSchema),
 });
-export type TransactionsForIdentityResponse = z.infer<
-  typeof TransactionsForIdentityResponseSchema
->;
+export type TransactionsForIdentityResponse = z.infer<typeof TransactionsForIdentityResponseSchema>;
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";

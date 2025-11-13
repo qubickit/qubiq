@@ -1,16 +1,13 @@
-import {
-  DEFAULT_ARCHIVE_BASE_URL,
-  DEFAULT_REQUEST_TIMEOUT_MS,
-} from "../../config";
+import { DEFAULT_ARCHIVE_BASE_URL, DEFAULT_REQUEST_TIMEOUT_MS } from "@src/config";
 import type {
   ArchiveTransactionResponse,
   EpochComputorsResponse,
   IdentityTransfersResponse,
   TickTransactionsResponse,
   TransactionStatusResponse,
-} from "../../types";
-import { HttpClient } from "./baseClient";
+} from "@types";
 import type { HttpClientOptions } from "./baseClient";
+import { HttpClient } from "./baseClient";
 
 export interface ArchiveClientOptions extends HttpClientOptions {}
 
@@ -32,9 +29,7 @@ export class ArchiveClient extends HttpClient {
     return this.get(`/v1/ticks/${tickNumber}/transactions`);
   }
 
-  getTickTransferTransactions(
-    tickNumber: number,
-  ): Promise<TickTransactionsResponse> {
+  getTickTransferTransactions(tickNumber: number): Promise<TickTransactionsResponse> {
     return this.get(`/v1/ticks/${tickNumber}/transfer-transactions`);
   }
 
@@ -46,9 +41,7 @@ export class ArchiveClient extends HttpClient {
     return this.get(`/v1/tx-status/${txId}`);
   }
 
-  getIdentityTransfers(
-    identity: string,
-  ): Promise<IdentityTransfersResponse> {
+  getIdentityTransfers(identity: string): Promise<IdentityTransfersResponse> {
     return this.get(`/v1/identities/${identity}/transfer-transactions`);
   }
 }

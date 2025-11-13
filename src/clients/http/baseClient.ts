@@ -1,6 +1,5 @@
+import { DEFAULT_REQUEST_TIMEOUT_MS } from "@src/config";
 import type { ZodType } from "zod";
-
-import { DEFAULT_REQUEST_TIMEOUT_MS } from "../../config";
 
 export interface HttpClientOptions {
   baseUrl?: string;
@@ -26,28 +25,15 @@ export abstract class HttpClient {
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
 
-  constructor({
-    baseUrl,
-    headers,
-    fetchImpl,
-    timeoutMs,
-  }: HttpClientOptions = {}) {
+  constructor({ baseUrl, headers, fetchImpl, timeoutMs }: HttpClientOptions = {}) {
     this.baseUrl = baseUrl ?? "";
     this.defaultHeaders = headers ?? {};
     this.fetchImpl = fetchImpl ?? globalThis.fetch.bind(globalThis);
     this.timeoutMs = timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
   }
 
-  protected async get<T>(
-    path: string,
-    schema?: ZodType<T>,
-    init?: RequestInit,
-  ): Promise<T> {
-    return this.request<T>(
-      path,
-      { ...(init ?? {}), method: "GET" },
-      schema,
-    );
+  protected async get<T>(path: string, schema?: ZodType<T>, init?: RequestInit): Promise<T> {
+    return this.request<T>(path, { ...(init ?? {}), method: "GET" }, schema);
   }
 
   protected async post<T>(
@@ -76,16 +62,11 @@ export abstract class HttpClient {
     if (/^https?:\/\//i.test(path)) {
       return path;
     }
-    const normalized =
-      path.startsWith("/") || this.baseUrl.endsWith("/") ? path : `/${path}`;
+    const normalized = path.startsWith("/") || this.baseUrl.endsWith("/") ? path : `/${path}`;
     return `${this.baseUrl}${normalized}`;
   }
 
-  protected async request<T>(
-    path: string,
-    init: RequestInit,
-    schema?: ZodType<T>,
-  ): Promise<T> {
+  protected async request<T>(path: string, init: RequestInit, schema?: ZodType<T>): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {

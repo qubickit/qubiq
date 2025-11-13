@@ -1,7 +1,4 @@
-import {
-  DEFAULT_LIVE_BASE_URL,
-  DEFAULT_REQUEST_TIMEOUT_MS,
-} from "../../config";
+import { DEFAULT_LIVE_BASE_URL, DEFAULT_REQUEST_TIMEOUT_MS } from "@src/config";
 import type {
   BalanceResponse,
   BlockHeightResponse,
@@ -10,15 +7,15 @@ import type {
   QuerySmartContractRequest,
   QuerySmartContractResponse,
   TickInfoResponse,
-} from "../../types";
+} from "@types";
 import {
   BalanceResponseSchema,
   BlockHeightResponseSchema,
   BroadcastTransactionResponseSchema,
   TickInfoResponseSchema,
-} from "../../types";
-import { HttpClient } from "./baseClient";
+} from "@types";
 import type { HttpClientOptions } from "./baseClient";
+import { HttpClient } from "./baseClient";
 
 export interface LiveServiceClientOptions extends HttpClientOptions {}
 
@@ -59,11 +56,7 @@ export class LiveServiceClient extends HttpClient {
   broadcastTransaction(
     payload: BroadcastTransactionRequest,
   ): Promise<BroadcastTransactionResponse> {
-    return this.post(
-      "/v1/broadcast-transaction",
-      payload,
-      BroadcastTransactionResponseSchema,
-    );
+    return this.post("/v1/broadcast-transaction", payload, BroadcastTransactionResponseSchema);
   }
 
   querySmartContract<T = unknown>(
