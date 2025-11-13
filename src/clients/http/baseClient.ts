@@ -1,3 +1,5 @@
+import type { ZodType } from "zod";
+
 import { DEFAULT_REQUEST_TIMEOUT_MS } from "../../config";
 
 export interface HttpClientOptions {
@@ -36,25 +38,38 @@ export abstract class HttpClient {
     this.timeoutMs = timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
   }
 
-  protected async get<T>(path: string, init?: RequestInit): Promise<T> {
-    return this.request<T>(path, { ...(init ?? {}), method: "GET" });
+  protected async get<T>(
+    path: string,
+    schema?: ZodType<T>,
+    init?: RequestInit,
+  ): Promise<T> {
+    return this.request<T>(
+      path,
+      { ...(init ?? {}), method: "GET" },
+      schema,
+    );
   }
 
   protected async post<T>(
     path: string,
     body?: unknown,
+    schema?: ZodType<T>,
     init?: RequestInit,
   ): Promise<T> {
     const headers: HeadersInit = {
       "content-type": "application/json",
       ...(init?.headers ?? {}),
     };
-    return this.request<T>(path, {
-      ...(init ?? {}),
-      method: "POST",
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    return this.request<T>(
+      path,
+      {
+        ...(init ?? {}),
+        method: "POST",
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(body),
+      },
+      schema,
+    );
   }
 
   private toUrl(path: string): string {
@@ -66,7 +81,11 @@ export abstract class HttpClient {
     return `${this.baseUrl}${normalized}`;
   }
 
-  protected async request<T>(path: string, init: RequestInit): Promise<T> {
+  protected async request<T>(
+    path: string,
+    init: RequestInit,
+    schema?: ZodType<T>,
+  ): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
@@ -97,8 +116,8 @@ export abstract class HttpClient {
         return undefined as T;
       }
 
-      const data = (await response.json()) as T;
-      return data;
+      const data = await response.json();
+      return schema ? schema.parse(data) : (data as T);
     } finally {
       clearTimeout(timeout);
     }
