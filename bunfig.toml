@@ -1,7 +1,12 @@
 [alias]
 "@src/*" = "./src/*"
 "@clients/*" = "./src/clients/*"
+"@boot/*" = "./src/boot/*"
 "@connectors/*" = "./src/connectors/*"
+"@serialization/*" = "./src/serialization/*"
+"@node/*" = "./src/node/*"
+"@proposals/*" = "./src/proposals/*"
+"@crypto/*" = "./src/crypto/*"
 "@types" = "./src/types/index.ts"
 "@types/*" = "./src/types/*"
 "@wallet/*" = "./src/wallet/*"

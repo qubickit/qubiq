@@ -18,7 +18,7 @@ export const PrivateKeyStringSchema = z
 
 export const TickInfoSchema = z.object({
   tick: nonNegativeInt,
-  duration: positiveInt,
+  duration: nonNegativeInt,
   epoch: nonNegativeInt,
   initialTick: nonNegativeInt,
 });
@@ -49,6 +49,8 @@ export type BalanceResponse = z.infer<typeof BalanceResponseSchema>;
 
 export const BroadcastTransactionResponseSchema = z.object({
   transactionId: nonEmptyString,
+  encodedTransaction: z.string().optional(),
+  peersBroadcasted: z.number().int().nonnegative().optional(),
 });
 export type BroadcastTransactionResponse = z.infer<typeof BroadcastTransactionResponseSchema>;
 
@@ -58,7 +60,7 @@ export const BlockHeightResponseSchema = z.object({
 export type BlockHeightResponse = z.infer<typeof BlockHeightResponseSchema>;
 
 export interface BroadcastTransactionRequest {
-  transaction: Uint8Array | string | Record<string, unknown>;
+  encodedTransaction: string;
   metadata?: Record<string, unknown>;
 }
 

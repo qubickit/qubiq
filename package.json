@@ -25,7 +25,11 @@
     "lint": "tsc --noEmit && biome check .",
     "format": "biome format . --write",
     "test": "bun test",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "example:boot": "bun run --bun ./examples/boot-flag.ts",
+    "example:watch": "bun run --bun ./examples/watch-balance.ts",
+    "example:send": "bun run --bun ./examples/send-transaction.ts",
+    "example:proposals": "bun run --bun ./examples/proposals-list.ts"
   },
   "engines": {
     "bun": ">=1.0.0",
@@ -37,6 +41,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "bignumber.js": "^9.3.1",
     "zod": "^4.1.12"
   }
 }

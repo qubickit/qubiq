@@ -1,4 +1,7 @@
+import { deriveQubicWallet } from "./deriver";
 import { normalizeSeed } from "./seed";
+import { SchnorrTransactionSigner } from "./signer";
+import type { SignedTransfer, TransactionSigner, UnsignedTransfer } from "./types";
 
 export interface WalletKeys {
   seed: string;
@@ -11,16 +14,18 @@ export interface WalletDeriver {
   derive(seed: string): Promise<Omit<WalletKeys, "seed">>;
 }
 
-const NOT_IMPLEMENTED_MESSAGE =
-  "No wallet derivation adapter configured. Provide a WalletDeriver that matches the official Qubic identity scheme.";
-
-export class NotImplementedDeriver implements WalletDeriver {
-  async derive(): Promise<Omit<WalletKeys, "seed">> {
-    throw new Error(NOT_IMPLEMENTED_MESSAGE);
+export class DefaultWalletDeriver implements WalletDeriver {
+  async derive(seed: string): Promise<Omit<WalletKeys, "seed">> {
+    const result = await deriveQubicWallet(seed);
+    return {
+      identity: result.identity,
+      publicKey: result.publicKeyHex,
+      privateKey: result.privateKeyHex,
+    };
   }
 }
 
-let defaultDeriver: WalletDeriver = new NotImplementedDeriver();
+let defaultDeriver: WalletDeriver = new DefaultWalletDeriver();
 
 export function setDefaultWalletDeriver(deriver: WalletDeriver) {
   defaultDeriver = deriver;
@@ -38,20 +43,19 @@ export async function deriveWalletFromSeed(
   };
 }
 
-export interface UnsignedTransfer {
-  source: string;
-  destination: string;
-  amount: bigint;
-  tick: number;
-  payload?: Uint8Array;
+export interface CreateWalletOptions {
+  deriver?: WalletDeriver;
+  signer?: TransactionSigner;
 }
 
-export interface SignedTransfer extends UnsignedTransfer {
-  signature: string;
-}
-
-export interface TransactionSigner {
-  signTransfer(transfer: UnsignedTransfer): Promise<SignedTransfer>;
+export async function createWalletFromSeed(
+  seed: string,
+  options: CreateWalletOptions = {},
+): Promise<Wallet> {
+  const keys = await deriveWalletFromSeed(seed, options.deriver ?? defaultDeriver);
+  const signer =
+    options.signer ?? SchnorrTransactionSigner.fromPrivateKeyHex(keys.privateKey, keys.publicKey);
+  return new Wallet(keys, signer);
 }
 
 export class Wallet {
@@ -68,10 +72,18 @@ export class Wallet {
     return this.keys.publicKey;
   }
 
-  async signTransfer(transfer: Omit<UnsignedTransfer, "source">): Promise<SignedTransfer> {
+  get privateKey(): string {
+    return this.keys.privateKey;
+  }
+
+  get seed(): string {
+    return this.keys.seed;
+  }
+
+  async signTransfer(transfer: Omit<UnsignedTransfer, "sourcePublicKey">): Promise<SignedTransfer> {
     return this.signer.signTransfer({
       ...transfer,
-      source: this.keys.identity,
+      sourcePublicKey: this.keys.publicKey,
     });
   }
 }

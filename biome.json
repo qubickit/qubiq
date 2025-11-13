@@ -5,12 +5,15 @@
       "**/src/**",
       "**/tests/**",
       "**/docs/**",
+      "**/examples/**",
       "**/bunfig.toml",
       "**/package.json",
       "**/tsconfig.json",
       "**/README.md",
       "!**/node_modules",
-      "!**/dist"
+      "!**/dist",
+      "!**/src/vendor",
+      "!**/src/crypto/qubic"
     ]
   },
   "formatter": {

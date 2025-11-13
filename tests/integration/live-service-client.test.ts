@@ -64,7 +64,7 @@ test("LiveServiceClient validates broadcast response", async () => {
   });
 
   const payload: BroadcastTransactionRequest = {
-    transaction: {},
+    encodedTransaction: "Zm9v",
   };
 
   const result = await client.broadcastTransaction(payload);

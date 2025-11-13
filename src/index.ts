@@ -5,9 +5,13 @@ import type { HttpConnectorOptions } from "@connectors/nodeConnector";
 import { HttpConnector } from "@connectors/nodeConnector";
 import type { ClientConfig } from "@src/config";
 
+export * from "./boot";
 export * from "./clients";
 export * from "./config";
 export * from "./connectors";
+export * from "./node";
+export * from "./proposals";
+export * from "./serialization";
 export * from "./types";
 export * from "./wallet";
 
