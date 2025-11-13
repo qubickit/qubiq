@@ -4,11 +4,18 @@ import {
 } from "../../config";
 import type {
   BalanceResponse,
+  BlockHeightResponse,
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
   QuerySmartContractRequest,
   QuerySmartContractResponse,
   TickInfoResponse,
+} from "../../types";
+import {
+  BalanceResponseSchema,
+  BlockHeightResponseSchema,
+  BroadcastTransactionResponseSchema,
+  TickInfoResponseSchema,
 } from "../../types";
 import { HttpClient } from "./baseClient";
 import type { HttpClientOptions } from "./baseClient";
@@ -26,15 +33,15 @@ export class LiveServiceClient extends HttpClient {
   }
 
   getTickInfo(): Promise<TickInfoResponse> {
-    return this.get("/v1/tick-info");
+    return this.get("/v1/tick-info", TickInfoResponseSchema);
   }
 
   getBalance(identity: string): Promise<BalanceResponse> {
-    return this.get(`/v1/balances/${identity}`);
+    return this.get(`/v1/balances/${identity}`, BalanceResponseSchema);
   }
 
-  getBlockHeight(): Promise<{ blockHeight: number }> {
-    return this.get("/v1/block-height");
+  getBlockHeight(): Promise<BlockHeightResponse> {
+    return this.get("/v1/block-height", BlockHeightResponseSchema);
   }
 
   getAssetsIssuedBy(identity: string) {
@@ -52,7 +59,11 @@ export class LiveServiceClient extends HttpClient {
   broadcastTransaction(
     payload: BroadcastTransactionRequest,
   ): Promise<BroadcastTransactionResponse> {
-    return this.post("/v1/broadcast-transaction", payload);
+    return this.post(
+      "/v1/broadcast-transaction",
+      payload,
+      BroadcastTransactionResponseSchema,
+    );
   }
 
   querySmartContract<T = unknown>(

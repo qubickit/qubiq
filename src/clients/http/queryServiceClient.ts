@@ -2,6 +2,19 @@ import {
   DEFAULT_QUERY_SERVICE_BASE_URL,
   DEFAULT_REQUEST_TIMEOUT_MS,
 } from "../../config";
+import {
+  ComputorListsResponseSchema,
+  QueryComputorListRequestSchema,
+  QueryServiceTickResponseSchema,
+  QueryTickDataRequestSchema,
+  QueryTickDataResponseSchema,
+  QueryTransactionsByHashRequestSchema,
+  QueryTransactionsByIdentityRequestSchema,
+  QueryTransactionsByTickRequestSchema,
+  QueryTransactionsForTickResponseSchema,
+  TransactionsForIdentityResponseSchema,
+  ArchiveTransactionSchema,
+} from "../../types";
 import type {
   ComputorsList,
   ProcessedTickInterval,
@@ -9,6 +22,7 @@ import type {
   QueryServiceTickData,
   QueryServiceTickResponse,
   QueryTickDataRequest,
+  QueryTickDataResponse,
   QueryTransactionsByHashRequest,
   QueryTransactionsByIdentityRequest,
   QueryTransactionsByTickRequest,
@@ -16,6 +30,7 @@ import type {
   QueryServiceTransaction,
   TransactionsForIdentityResponse,
 } from "../../types";
+import { ProcessedTickIntervalSchema } from "../../types";
 import { HttpClient } from "./baseClient";
 import type { HttpClientOptions } from "./baseClient";
 
@@ -32,40 +47,59 @@ export class QueryServiceClient extends HttpClient {
   }
 
   getLastProcessedTick(): Promise<QueryServiceTickResponse> {
-    return this.get("/getLastProcessedTick");
+    return this.get("/getLastProcessedTick", QueryServiceTickResponseSchema);
   }
 
   getProcessedTickIntervals(): Promise<ProcessedTickInterval[]> {
-    return this.get("/getProcessedTickIntervals");
+    return this.get(
+      "/getProcessedTickIntervals",
+      ProcessedTickIntervalSchema.array(),
+    );
   }
 
   getTickData(
-    payload: QueryTickDataRequest
-  ): Promise<{ tickData: QueryServiceTickData }> {
-    return this.post("/getTickData", payload);
+    payload: QueryTickDataRequest,
+  ): Promise<QueryTickDataResponse> {
+    return this.post("/getTickData", payload, QueryTickDataResponseSchema);
   }
 
   getTransactionByHash(
-    payload: QueryTransactionsByHashRequest
+    payload: QueryTransactionsByHashRequest,
   ): Promise<QueryServiceTransaction> {
-    return this.post("/getTransactionByHash", payload);
+    return this.post(
+      "/getTransactionByHash",
+      payload,
+      ArchiveTransactionSchema,
+    );
   }
 
   getTransactionsForIdentity(
-    payload: QueryTransactionsByIdentityRequest
+    payload: QueryTransactionsByIdentityRequest,
   ): Promise<TransactionsForIdentityResponse> {
-    return this.post("/getTransactionsForIdentity", payload);
+    return this.post(
+      "/getTransactionsForIdentity",
+      payload,
+      TransactionsForIdentityResponseSchema,
+    );
   }
 
   getTransactionsForTick(
-    payload: QueryTransactionsByTickRequest
+    payload: QueryTransactionsByTickRequest,
   ): Promise<QueryTransactionsForTickResponse> {
-    return this.post("/getTransactionsForTick", payload);
+    return this.post(
+      "/getTransactionsForTick",
+      payload,
+      QueryTransactionsForTickResponseSchema,
+    );
   }
 
   getComputorListsForEpoch(
-    payload: QueryComputorListRequest
+    payload: QueryComputorListRequest,
   ): Promise<{ computorsLists: ComputorsList[] }> {
-    return this.post("/getComputorListsForEpoch", payload);
+    return this.post(
+      "/getComputorListsForEpoch",
+      payload,
+      ComputorListsResponseSchema,
+    );
   }
 }

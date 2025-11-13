@@ -1,33 +1,51 @@
-export interface TickInfo {
-  tick: number;
-  duration: number;
-  epoch: number;
-  initialTick: number;
-}
+import { z } from "zod";
 
-export interface TickInfoResponse {
-  tickInfo: TickInfo;
-}
+const nonNegativeInt = z.number().int().nonnegative();
+const positiveInt = z.number().int().positive();
+const nonEmptyString = z.string().min(1);
 
-export interface BalanceRecord {
-  id: string;
-  balance: string;
-  validForTick: number;
-  latestIncomingTransferTick: number;
-  latestOutgoingTransferTick: number;
-  incomingAmount: string;
-  outgoingAmount: string;
-  numberOfIncomingTransfers: number;
-  numberOfOutgoingTransfers: number;
-}
+export const TickInfoSchema = z.object({
+  tick: nonNegativeInt,
+  duration: positiveInt,
+  epoch: nonNegativeInt,
+  initialTick: nonNegativeInt,
+});
+export type TickInfo = z.infer<typeof TickInfoSchema>;
 
-export interface BalanceResponse {
-  balance: BalanceRecord;
-}
+export const TickInfoResponseSchema = z.object({
+  tickInfo: TickInfoSchema,
+});
+export type TickInfoResponse = z.infer<typeof TickInfoResponseSchema>;
 
-export interface BroadcastTransactionResponse {
-  transactionId: string;
-}
+export const BalanceRecordSchema = z.object({
+  id: nonEmptyString,
+  balance: nonEmptyString,
+  validForTick: nonNegativeInt,
+  latestIncomingTransferTick: nonNegativeInt,
+  latestOutgoingTransferTick: nonNegativeInt,
+  incomingAmount: nonEmptyString,
+  outgoingAmount: nonEmptyString,
+  numberOfIncomingTransfers: nonNegativeInt,
+  numberOfOutgoingTransfers: nonNegativeInt,
+});
+export type BalanceRecord = z.infer<typeof BalanceRecordSchema>;
+
+export const BalanceResponseSchema = z.object({
+  balance: BalanceRecordSchema,
+});
+export type BalanceResponse = z.infer<typeof BalanceResponseSchema>;
+
+export const BroadcastTransactionResponseSchema = z.object({
+  transactionId: nonEmptyString,
+});
+export type BroadcastTransactionResponse = z.infer<
+  typeof BroadcastTransactionResponseSchema
+>;
+
+export const BlockHeightResponseSchema = z.object({
+  blockHeight: nonNegativeInt,
+});
+export type BlockHeightResponse = z.infer<typeof BlockHeightResponseSchema>;
 
 export interface BroadcastTransactionRequest {
   transaction: Uint8Array | string | Record<string, unknown>;
@@ -44,131 +62,193 @@ export interface QuerySmartContractResponse<T = unknown> {
   result: T;
 }
 
-export interface ArchiveTransaction {
-  id: string;
-  hash: string;
-  source: string;
-  destination: string;
-  tick: number;
-  timestamp: string;
-  amount: string;
-  inputType: number;
-  inputSize: number;
-  inputData?: string;
-  signature?: string;
-  moneyFlew?: boolean;
-}
+export const ArchiveTransactionSchema = z.object({
+  id: nonEmptyString,
+  hash: nonEmptyString,
+  source: nonEmptyString,
+  destination: nonEmptyString,
+  tick: nonNegativeInt,
+  timestamp: nonEmptyString,
+  amount: nonEmptyString,
+  inputType: nonNegativeInt,
+  inputSize: nonNegativeInt,
+  inputData: z.string().optional(),
+  signature: z.string().optional(),
+  moneyFlew: z.boolean().optional(),
+});
+export type ArchiveTransaction = z.infer<typeof ArchiveTransactionSchema>;
 
-export interface ArchiveTransactionResponse {
-  transaction: ArchiveTransaction;
-}
+export const ArchiveTransactionResponseSchema = z.object({
+  transaction: ArchiveTransactionSchema,
+});
+export type ArchiveTransactionResponse = z.infer<
+  typeof ArchiveTransactionResponseSchema
+>;
 
-export interface IdentityTransferRecord {
-  source: string;
-  destination: string;
-  amount: string;
-  tick: number;
-  hash: string;
-}
+export const IdentityTransferRecordSchema = z.object({
+  source: nonEmptyString,
+  destination: nonEmptyString,
+  amount: nonEmptyString,
+  tick: nonNegativeInt,
+  hash: nonEmptyString,
+});
+export type IdentityTransferRecord = z.infer<
+  typeof IdentityTransferRecordSchema
+>;
 
-export interface IdentityTransfersResponse {
-  identity: string;
-  transfers: IdentityTransferRecord[];
-}
+export const IdentityTransfersResponseSchema = z.object({
+  identity: nonEmptyString,
+  transfers: z.array(IdentityTransferRecordSchema),
+});
+export type IdentityTransfersResponse = z.infer<
+  typeof IdentityTransfersResponseSchema
+>;
 
-export interface TickTransactionsResponse {
-  tickNumber: number;
-  transactions: ArchiveTransaction[];
-}
+export const TickTransactionsResponseSchema = z.object({
+  tickNumber: nonNegativeInt,
+  transactions: z.array(ArchiveTransactionSchema),
+});
+export type TickTransactionsResponse = z.infer<
+  typeof TickTransactionsResponseSchema
+>;
 
-export interface TransactionStatusResponse {
-  txId: string;
-  status: string;
-  tickNumber?: number;
-}
+export const TransactionStatusResponseSchema = z.object({
+  txId: nonEmptyString,
+  status: nonEmptyString,
+  tickNumber: nonNegativeInt.optional(),
+});
+export type TransactionStatusResponse = z.infer<
+  typeof TransactionStatusResponseSchema
+>;
 
-export interface EpochComputorsResponse {
-  epoch: number;
-  computors: string[];
-}
+export const EpochComputorsResponseSchema = z.object({
+  epoch: nonNegativeInt,
+  computors: z.array(nonEmptyString),
+});
+export type EpochComputorsResponse = z.infer<
+  typeof EpochComputorsResponseSchema
+>;
 
-export interface QueryServiceTickResponse {
-  tickNumber: number;
-  epoch: number;
-  intervalInitialTick: number;
-}
+export const QueryServiceTickResponseSchema = z.object({
+  tickNumber: nonNegativeInt,
+  epoch: nonNegativeInt,
+  intervalInitialTick: nonNegativeInt,
+});
+export type QueryServiceTickResponse = z.infer<
+  typeof QueryServiceTickResponseSchema
+>;
 
-export interface ProcessedTickInterval {
-  epoch: number;
-  firstTick: number;
-  lastTick: number;
-}
+export const ProcessedTickIntervalSchema = z.object({
+  epoch: nonNegativeInt,
+  firstTick: nonNegativeInt,
+  lastTick: nonNegativeInt,
+});
+export type ProcessedTickInterval = z.infer<
+  typeof ProcessedTickIntervalSchema
+>;
 
-export interface ComputorsList {
-  epoch: number;
-  tickNumber: number;
-  identities: string[];
-  signature?: string;
-}
+export const ComputorsListSchema = z.object({
+  epoch: nonNegativeInt,
+  tickNumber: nonNegativeInt,
+  identities: z.array(nonEmptyString),
+  signature: z.string().optional(),
+});
+export type ComputorsList = z.infer<typeof ComputorsListSchema>;
 
-export interface QueryServiceTickData {
-  tickNumber: number;
-  epoch: number;
-  computorIndex: number;
-  timestamp: string;
-  varStruct?: string;
-  timeLock?: string;
-  transactionHashes?: string[];
-  contractFees?: string[];
-  signature?: string;
-}
+export const QueryServiceTickDataSchema = z.object({
+  tickNumber: nonNegativeInt,
+  epoch: nonNegativeInt,
+  computorIndex: nonNegativeInt,
+  timestamp: nonEmptyString,
+  varStruct: z.string().optional(),
+  timeLock: z.string().optional(),
+  transactionHashes: z.array(nonEmptyString).optional(),
+  contractFees: z.array(nonEmptyString).optional(),
+  signature: z.string().optional(),
+});
+export type QueryServiceTickData = z.infer<typeof QueryServiceTickDataSchema>;
 
-export interface QueryServiceTransaction extends ArchiveTransaction {}
+export type QueryServiceTransaction = ArchiveTransaction;
 
-export interface QueryTransactionsByIdentityRequest {
-  identity: string;
-  limit?: number;
-  page?: number;
-}
+export const QueryTickDataResponseSchema = z.object({
+  tickData: QueryServiceTickDataSchema,
+});
+export type QueryTickDataResponse = z.infer<typeof QueryTickDataResponseSchema>;
 
-export interface RangeFilter {
-  from?: number;
-  to?: number;
-}
+export const RangeFilterSchema = z.object({
+  from: z.number().optional(),
+  to: z.number().optional(),
+});
+export type RangeFilter = z.infer<typeof RangeFilterSchema>;
 
-export interface PaginationOptions {
-  page?: number;
-  pageSize?: number;
-}
+export const PaginationOptionsSchema = z.object({
+  page: nonNegativeInt.optional(),
+  pageSize: positiveInt.optional(),
+});
+export type PaginationOptions = z.infer<typeof PaginationOptionsSchema>;
 
-export interface QueryTransactionsByHashRequest {
-  hash: string;
-}
+export const QueryTransactionsByIdentityRequestSchema = z.object({
+  identity: nonEmptyString,
+  limit: positiveInt.optional(),
+  page: nonNegativeInt.optional(),
+});
+export type QueryTransactionsByIdentityRequest = z.infer<
+  typeof QueryTransactionsByIdentityRequestSchema
+>;
 
-export interface QueryTransactionsByTickRequest {
-  tickNumber: number;
-}
+export const QueryTransactionsByHashRequestSchema = z.object({
+  hash: nonEmptyString,
+});
+export type QueryTransactionsByHashRequest = z.infer<
+  typeof QueryTransactionsByHashRequestSchema
+>;
 
-export interface QueryComputorListRequest {
-  epoch: number;
-}
+export const QueryTransactionsByTickRequestSchema = z.object({
+  tickNumber: nonNegativeInt,
+});
+export type QueryTransactionsByTickRequest = z.infer<
+  typeof QueryTransactionsByTickRequestSchema
+>;
 
-export interface QueryTickDataRequest {
-  tickNumber: number;
-}
+export const QueryComputorListRequestSchema = z.object({
+  epoch: nonNegativeInt,
+});
+export type QueryComputorListRequest = z.infer<
+  typeof QueryComputorListRequestSchema
+>;
 
-export interface QueryTransactionsForTickResponse {
-  transactions: QueryServiceTransaction[];
-}
+export const ComputorListsResponseSchema = z.object({
+  computorsLists: z.array(ComputorsListSchema),
+});
+export type ComputorListsResponse = z.infer<
+  typeof ComputorListsResponseSchema
+>;
 
-export interface TransactionsForIdentityResponse {
-  validForTick?: number;
-  hits?: {
-    total?: number;
-    page?: number;
-    pageSize?: number;
-  };
-  transactions: QueryServiceTransaction[];
-}
+export const QueryTickDataRequestSchema = z.object({
+  tickNumber: nonNegativeInt,
+});
+export type QueryTickDataRequest = z.infer<typeof QueryTickDataRequestSchema>;
+
+export const QueryTransactionsForTickResponseSchema = z.object({
+  transactions: z.array(ArchiveTransactionSchema),
+});
+export type QueryTransactionsForTickResponse = z.infer<
+  typeof QueryTransactionsForTickResponseSchema
+>;
+
+export const TransactionsForIdentityResponseSchema = z.object({
+  validForTick: nonNegativeInt.optional(),
+  hits: z
+    .object({
+      total: nonNegativeInt.optional(),
+      page: nonNegativeInt.optional(),
+      pageSize: nonNegativeInt.optional(),
+    })
+    .optional(),
+  transactions: z.array(ArchiveTransactionSchema),
+});
+export type TransactionsForIdentityResponse = z.infer<
+  typeof TransactionsForIdentityResponseSchema
+>;
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";

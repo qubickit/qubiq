@@ -11,7 +11,7 @@ A TypeScript SDK should feel like a natural extension of the C++ node: it boots 
 `@qubickit/core` organizes into three layers:
 
 1. **Connector layer** – manages TCP reachability, message framing (headers + dejavu), and tick scheduling so the library stays in lockstep with the native node’s 1,000ms clock.
-2. **Serialization layer** – defines every wire structure (`RequestResponseHeader`, `Transaction`, `EntityRecord`, proposal payloads) and provides `encode/decode` helpers that validate field sizes and mirror native byte layouts exactly.
+2. **Serialization layer** – defines every wire structure (`RequestResponseHeader`, `Transaction`, `EntityRecord`, proposal payloads) and provides `encode/decode` helpers that validate field sizes via Zod schemas while mirroring native byte layouts exactly.
 3. **Wrapper layer** – bundles connectors+encoders into high-level APIs (`QuBicNodeClient`, `ProposalCoordinator`, `BootModeManager`) so users can broadcast transactions, read proposals, and trigger finalizers with minimal boilerplate.
 
 ## Node Connectors
