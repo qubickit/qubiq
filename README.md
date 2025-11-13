@@ -14,6 +14,74 @@ A TypeScript SDK should feel like a natural extension of the C++ node: it boots 
 2. **Serialization layer** – defines every wire structure (`RequestResponseHeader`, `Transaction`, `EntityRecord`, proposal payloads) and provides `encode/decode` helpers that validate field sizes via Zod schemas while mirroring native byte layouts exactly.
 3. **Wrapper layer** – bundles connectors+encoders into high-level APIs (`QuBicNodeClient`, `ProposalCoordinator`, `BootModeManager`) so users can broadcast transactions, read proposals, and trigger finalizers with minimal boilerplate.
 
+## Quickstart
+
+```bash
+bun add @qubickit/core
+```
+
+```ts
+import { BootManager, BootMode, QubicNodeClient, deriveWalletFromSeed } from "@qubickit/core";
+
+const boot = new BootManager();
+const decision = await boot.decide();
+console.log(`Start flag: ${decision.flag}`);
+
+const wallet = await deriveWalletFromSeed("wqbdupxgcaimwdsnchitjmsplzclkqokhadgehdxqogeeiovzvadstt");
+console.log("Identity", wallet.identity);
+
+const client = new QubicNodeClient();
+const balance = await client.getBalance("A".repeat(60));
+console.log(balance.balance.balance);
+
+const watcher = client.watchWallet("A".repeat(60));
+watcher.on("balanceChanged", ({ current }) => {
+  console.log("new balance", current.balance);
+});
+```
+
+Serialization helpers let you craft transactions manually when needed:
+
+```ts
+import { encodeTransaction } from "@qubickit/core";
+
+const raw = encodeTransaction({
+  sourcePublicKey: "ab".repeat(32),
+  destinationPublicKey: "cd".repeat(32),
+  amount: BigInt(1000),
+  tick: 123,
+  inputType: 0,
+  inputSize: 0,
+  signature: "ef".repeat(64),
+});
+```
+
+To let the library derive keys and sign transactions directly from a 55-character seed:
+
+```ts
+import { QubicNodeClient, createWalletFromSeed } from "@qubickit/core";
+
+const client = new QubicNodeClient();
+const wallet = await createWalletFromSeed("wqbdupxgcaimwdsnchitjmsplzclkqokhadgehdxqogeeiovzvadstt");
+const tick = (await client.getTickInfo()).tickInfo.tick;
+
+const signed = await wallet.signTransfer({
+  destinationPublicKey: "cd".repeat(32),
+  amount: BigInt(1_000_000),
+  tick: tick + 10,
+});
+
+const base64Tx = Buffer.from(signed.bytes).toString("base64");
+await client.broadcastTransaction({ encodedTransaction: base64Tx });
+```
+
+## Examples & CLI helpers
+
+- `bun run example:boot` – prints the recommended boot flag/mode/epoch using `BootManager`.
+- `bun run example:watch SUZ...` – streams balance changes for a Qubic identity using `QubicNodeClient.watchWallet`. Set `QUBIC_ID` if you prefer environment variables.
+- `bun run example:send <seed> <dst> <amount> [--broadcast]` – derives keys from the seed, signs the transfer, and optionally broadcasts it over the public HTTP API. The destination can be either a 32-byte hex public key or the 60-letter identity.
+- `bun run example:proposals` – demonstrates `ProposalCoordinator` with an in-memory proposal source.
+
 ## Node Connectors
 
 - **Peer connector**: Mirror the native network stack by exposing a `QuBicNodeConnector` that opens TCP/IPv4 sessions on port `21841`, negotiates the 96-peer topology, and implements the Request/Response message lifecycle (headers with 24-bit size/type + dejavu). This connector is the landing pad for all other services and must enforce the same 1,000ms tick cadence.
@@ -49,6 +117,7 @@ Wallet tooling rounds out the SDK so developers can generate identities, sign tr
 ### Identity lifecycle
 
 - **Seed → identity derivation**: Follow the `/qubic/integration` Go snippets (`types.GenerateRandomSeed()` + `types.NewWallet(seed)`) to derive the identity (address), 32-byte public key, and private key. Provide equivalent TypeScript helpers (`generateSeed()`, `deriveWallet(seed)`) with optional entropy injection for custodial systems.
+- **Seed → identity derivation**: `deriveWalletFromSeed` reuses the official Qubic WASM (KangarooTwelve + FourQ keygen) so the resulting identity exactly matches the C++ node.
 - **Serialization guarantees**: Ensure derived keys plug directly into the transaction encoder so signatures produced with the TS signer are byte-for-byte identical to the Go reference implementation.
 - **Persistence**: Offer pluggable keystore adapters (filesystem vault, HSM/KMS, secure enclave) while keeping the default workflow simple—encrypt the seed/keypair before persisting it and expose utilities to zero buffers after use.
 
@@ -97,12 +166,11 @@ The core types and their wire formats are defined in the native code; the TypeSc
 
 ## Wrapper API
 
-- **`QuBicNodeClient`**
-  - Combines the connector + encoders into a single class that exposes high-level methods such as `broadcastTransaction`, `getCurrentTick`, `listProposals`, and `finalizeProposal`.
-  - Internally handles epoch conditional logic (e.g., `if (system.epoch >= 103)` for phase transitions) so callers can concentrate on business rules.
+- **`QubicNodeClient`**
+  - High-level wrapper around `LiveServiceClient` + `QueryServiceClient` with helpers for balances, transactions, wallet watchers, and proposal coordination.
+  - Ideal entry point for CLI tools or apps that don’t want to manage individual HTTP clients.
 - **Contract lifecycle helpers**
-  - Wrap `CALL(FinalizeShareholderStateVarProposals, …)` and helpers that set variables in the same order the C++ macros expect.
-  - Provide a `ProposalCoordinator` that fetches indices, polls voting summaries, and writes accepted state variables via `FinalizeShareholderProposalSetStateVar`.
+  - `ProposalCoordinator` offers in-memory helpers to process shareholder proposals, emulate `GetShareholderProposalIndices`, and finalize accepted state-variable proposals before persisting results.
 - **Encoder helpers for custom payloads**
   - Provide typed payload builders for variable/multi-variable proposals, coin transfers, and cross-contract requests.
   - Offer fallback `Buffer`/`ArrayBuffer` views so native modules can sign payloads without copying.
@@ -124,14 +192,14 @@ The core types and their wire formats are defined in the native code; the TypeSc
 3. **Phase 2 – Serialization + encoders/decoders** ✅ (see `docs/phase2-notes.md`)
    - Implement `RequestResponseHeader`, `Transaction`, `EntityRecord`, and proposal helpers with thorough tests verifying byte-level equality.
    - Expose signing interfaces that match native structures for cross-language compatibility.
-4. **Phase 3 – Wrapper & proposal flow**
-   - Deliver `QuBicNodeClient`, proposal lifecycle helpers, and contract finalizers that call into the encoder layer.
-   - Add convenience APIs for `setShareholderProposal`, `getShareholderProposalIndices`, and finalization hooks.
-5. **Phase 4 – Documentation + onboarding**
+4. **Phase 3 – Wrapper & proposal flow** ✅ (see `docs/phase3-notes.md`)
+   - Deliver `QubicNodeClient`, proposal lifecycle helpers, and contract finalizers that call into the encoder layer.
+   - Add convenience APIs for `getShareholderProposalIndices` and finalization hooks.
+5. **Phase 4 – Documentation + onboarding** ✅ (see `docs/phase4-notes.md`)
    - Publish README, API docs, and quickstarts showing how to spin up connectors, encode transactions, and finalize proposals.
    - Provide diagnostics (tick telemetry, proposal watch) and sample CLI scripts that call the TypeScript wrapper.
-6. **Phase 5 – Ecosystem integrations**
-   - Ship CLI tools that wrap `QuBicNodeClient`, testnet orchestrators that leverage the proposal lifecycle helpers, and npm scripts for contract deployment.
+6. **Phase 5 – Ecosystem integrations** ✅ (see `docs/phase5-notes.md`)
+   - Ship CLI tools that wrap `QubicNodeClient`, testnet orchestrators that leverage the proposal lifecycle helpers, and npm scripts for contract deployment.
    - Gate performance tests that measure tick throughput and message deduplication to validate the TS layer against native expectations.
 
 ## Supporting Resources
@@ -139,5 +207,9 @@ The core types and their wire formats are defined in the native code; the TypeSc
 - Native documentation: `SEAMLESS.md` for network start modes and epoch-driven guards.
 - Proposal management: `doc/contracts_proposals.md` for share-holder lifecycles, voting summaries, and finalization macros.
 - Build references: `benchmark_uefi/CMakeLists.txt` and `lib/platform_common` CMake files showing include paths and compiler flags to keep TypeScript structs aligned.
+
+## Credits
+
+- FourQ + KangarooTwelve WASM shim courtesy of [j0et0om](https://github.com/j0et0om); the bundled module makes our wallet derivation and SchnorrQ signing match the canonical Qubic implementation. Huge thanks for open-sourcing that work.
 
 This expanded roadmap captures both the implementation phases and the supporting APIs needed to give TypeScript users a complete, deterministic experience. Once these anchors exist, higher-level kits (CLI scripts, bundlers, cross-platform runtimes) can be built on top of the same structure.
