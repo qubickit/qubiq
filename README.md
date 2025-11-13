@@ -76,7 +76,7 @@ Wallet tooling rounds out the SDK so developers can generate identities, sign tr
 
 ## Encoders & Decoders for All Types
 
-The core types and their wire formats are defined in the native code; the TypeScript library should reproduce them exactly so any contract call or transaction can be built and parsed deterministically.
+The core types and their wire formats are defined in the native code; the TypeScript library should reproduce them exactly so any contract call or transaction can be built and parsed deterministically. `@serialization/requestHeader` and `@serialization/transaction` provide byte-level encode/decode helpers that match the Qubic layout and power the Phase 2 deliverables.
 
 - **RequestResponseHeader**
   - 3-byte big-endian size, 1-byte type, 4-byte dejavu.
@@ -121,7 +121,7 @@ The core types and their wire formats are defined in the native code; the TypeSc
 2. **Phase 1 – Connectors & boot orchestration** ✅ (see `docs/phase1-notes.md`)
    - Build the HTTP connector, boot-mode decision tree (`BootManager`), and CLI/RPC adapters.
    - Automate tick scheduling to match the node’s 1,000ms clock.
-3. **Phase 2 – Serialization + encoders/decoders**
+3. **Phase 2 – Serialization + encoders/decoders** ✅ (see `docs/phase2-notes.md`)
    - Implement `RequestResponseHeader`, `Transaction`, `EntityRecord`, and proposal helpers with thorough tests verifying byte-level equality.
    - Expose signing interfaces that match native structures for cross-language compatibility.
 4. **Phase 3 – Wrapper & proposal flow**

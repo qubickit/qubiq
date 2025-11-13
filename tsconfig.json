@@ -19,6 +19,7 @@
       "@clients/*": ["src/clients/*"],
       "@boot/*": ["src/boot/*"],
       "@connectors/*": ["src/connectors/*"],
+      "@serialization/*": ["src/serialization/*"],
       "@types": ["src/types/index.ts"],
       "@types/*": ["src/types/*"],
       "@wallet/*": ["src/wallet/*"]

@@ -9,6 +9,7 @@ export * from "./boot";
 export * from "./clients";
 export * from "./config";
 export * from "./connectors";
+export * from "./serialization";
 export * from "./types";
 export * from "./wallet";
 
