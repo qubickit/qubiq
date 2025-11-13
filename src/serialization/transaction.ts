@@ -2,11 +2,11 @@ import { bytesToHex, concatBytes, hexToBytes } from "@src/utils/bytes";
 import type { Transaction } from "@types";
 import { TransactionSchema } from "@types";
 
-const PUBLIC_KEY_BYTES = 32;
-const AMOUNT_BYTES = 8;
-const TICK_BYTES = 4;
-const INPUT_TYPE_BYTES = 2;
-const INPUT_SIZE_BYTES = 2;
+export const PUBLIC_KEY_BYTES = 32;
+export const AMOUNT_BYTES = 8;
+export const TICK_BYTES = 4;
+export const INPUT_TYPE_BYTES = 2;
+export const INPUT_SIZE_BYTES = 2;
 export const SIGNATURE_BYTES = 64;
 export const TRANSACTION_HEADER_BYTES =
   PUBLIC_KEY_BYTES * 2 + AMOUNT_BYTES + TICK_BYTES + INPUT_TYPE_BYTES + INPUT_SIZE_BYTES;
