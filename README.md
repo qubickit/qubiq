@@ -21,7 +21,7 @@ A TypeScript SDK should feel like a natural extension of the C++ node: it boots 
   - Ship HTTP clients for every documented RPC (tick info, proposal listings, contract queries, peer discovery, etc.), letting environments without raw TCP access still interact with Qubic; each HTTP client mirrors the native message payloads so responses map cleanly to the encoder layer.
   - Base those HTTP clients on the `/qubic/integration` reference: expose `GET /v1/tick-info`, `GET /v1/balances/:id`, transaction broadcasting endpoints, and any gRPC services (`GetTickInfo`, `GetBalance`, `BroadcastTransaction`, etc.) so integrators have every documented RPC surface available.
   - Include an HTTP transport layer that can reach any documented RPC (tick info, proposal listings, boot mode) so environments that cannot open raw TCP sockets still interact with Qubic semi-directly.
-- **Boot mode manager**: Expose helpers that decide between seamless and scratch boots using the flag defined in `SEAMLESS.md` (`START_NETWORK_FROM_SCRATCH`). Keep the choice deterministic so updates can be coordinated with epoch transitions.
+- **Boot mode manager**: The `BootManager` helper inspects remote epochs, persisted local state, and optional overrides to recommend the correct (`0 = seamless`, `1 = scratch`) flag and persists the final decision for future runs.
 - **Tick/wrapper scheduler**: Add a scheduler that safely queues outgoing transactions and contract calls in the same tick window the native node expects, with simple retry semantics for missing peers or `dejavu` collisions.
 - **Health & telemetry watcher**: Periodically surface peer counts, tick latency, and CPU/RAM hints so higher-level tooling can react if the node becomes unreachable or falls behind the expected epoch.
 
@@ -115,11 +115,11 @@ The core types and their wire formats are defined in the native code; the TypeSc
 
 ## Implementation Phases
 
-1. **Phase 0 – Research + data modeling**
+1. **Phase 0 – Research + data modeling** ✅
    - Pull the exhaustive list of messages and structures from `/qubic/core` docs (`SEAMLESS.md`, `doc/contracts_proposals.md`, `doc/contract_*`, `benchmark_uefi` CMake files for include paths).
    - Build TS interfaces for each struct and align bit widths based on the native definitions (e.g., 24-bit header size, 64-entry proposal pagination).
-2. **Phase 1 – Connectors & boot orchestration**
-   - Build the TCP connector, boot-mode decision tree, and CLI/RPC adapters.
+2. **Phase 1 – Connectors & boot orchestration** ✅ (see `docs/phase1-notes.md`)
+   - Build the HTTP connector, boot-mode decision tree (`BootManager`), and CLI/RPC adapters.
    - Automate tick scheduling to match the node’s 1,000ms clock.
 3. **Phase 2 – Serialization + encoders/decoders**
    - Implement `RequestResponseHeader`, `Transaction`, `EntityRecord`, and proposal helpers with thorough tests verifying byte-level equality.

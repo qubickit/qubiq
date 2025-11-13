@@ -1,6 +1,7 @@
 [alias]
 "@src/*" = "./src/*"
 "@clients/*" = "./src/clients/*"
+"@boot/*" = "./src/boot/*"
 "@connectors/*" = "./src/connectors/*"
 "@types" = "./src/types/index.ts"
 "@types/*" = "./src/types/*"
