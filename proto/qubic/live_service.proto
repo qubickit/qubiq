@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package qubic.live;
+
+message TickInfoRequest {}
+
+message TickInfoMetadata {
+  uint32 tick = 1;
+  uint32 epoch = 2;
+  uint32 duration = 3;
+  uint32 initialTick = 4;
+}
+
+message TickInfoResponse {
+  TickInfoMetadata tickInfo = 1;
+}
+
+message BalanceRequest {
+  string identity = 1;
+}
+
+message BalanceRecord {
+  string balance = 1;
+  string incomingAmount = 2;
+  string outgoingAmount = 3;
+  uint32 numberOfIncomingTransfers = 4;
+  uint32 numberOfOutgoingTransfers = 5;
+  uint32 latestIncomingTransferTick = 6;
+  uint32 latestOutgoingTransferTick = 7;
+}
+
+message BalanceResponse {
+  BalanceRecord balance = 1;
+}
+
+message BroadcastTransactionRequest {
+  string encodedTransaction = 1;
+  map<string, string> metadata = 2;
+}
+
+message BroadcastTransactionResponse {
+  string transactionId = 1;
+}
+
+service QubicLiveService {
+  rpc GetTickInfo (TickInfoRequest) returns (TickInfoResponse);
+  rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+  rpc BroadcastTransaction (BroadcastTransactionRequest) returns (BroadcastTransactionResponse);
+}
