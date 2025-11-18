@@ -75,12 +75,203 @@ const base64Tx = Buffer.from(signed.bytes).toString("base64");
 await client.broadcastTransaction({ encodedTransaction: base64Tx });
 ```
 
+Need multiple deterministic accounts from the same seed? Pass `accountIndex`:
+
+```ts
+const wallet0 = await deriveWalletFromSeed(seed);
+const wallet1 = await deriveWalletFromSeed(seed, { accountIndex: 1 });
+```
+
 ## Examples & CLI helpers
 
 - `bun run example:boot` – prints the recommended boot flag/mode/epoch using `BootManager`.
 - `bun run example:watch SUZ...` – streams balance changes for a Qubic identity using `QubicNodeClient.watchWallet`. Set `QUBIC_ID` if you prefer environment variables.
 - `bun run example:send <seed> <dst> <amount> [--broadcast]` – derives keys from the seed, signs the transfer, and optionally broadcasts it over the public HTTP API. The destination can be either a 32-byte hex public key or the 60-letter identity.
 - `bun run example:proposals` – demonstrates `ProposalCoordinator` with an in-memory proposal source.
+- `bun run example:automation --profile=mainnet` – launches the headless automation runner backed by the profile-aware pipeline (use `QUBIC_AUTOMATION_IDENTITIES=ID1,ID2` to feed watchers and snapshots).
+- `bun run example:dashboard --identities=SUZ...` – renders a live console dashboard (plus Prometheus metrics) for ticks and balances.
+
+## Automation Pipelines
+
+When you want a zero-boilerplate operations loop, use the runtime helper that wires profiles, watchers, and proposal polling in one call:
+
+```ts
+import { createAutomationRuntime } from "@qubickit/core";
+
+const runtime = createAutomationRuntime("mainnet", {
+  onBalanceSnapshot: (snapshots) => console.log("balances", snapshots.length),
+  onProposals: (result) => console.log("epoch", result.epoch, "active", result.activeIndices.length),
+  onBalanceChange: ({ identity, current }) => console.log("watcher", identity, current.balance),
+});
+
+await runtime.start();
+// Later…
+await runtime.stop();
+```
+
+Need more control? Compose your own pipeline and queue:
+
+```ts
+import { AutomationPipeline, createBalanceSnapshotJob, TransactionQueue } from "@qubickit/core";
+
+const pipeline = new AutomationPipeline();
+pipeline.addTask({
+  name: "balances",
+  intervalMs: 60_000,
+  runOnStart: true,
+  job: createBalanceSnapshotJob({
+    identities: ["SUZ..."],
+    fetchBalance: (identity) => client.getBalance(identity),
+    onSnapshot: (snapshots) => console.log("balances", snapshots),
+  }),
+});
+await pipeline.start();
+
+const queue = new TransactionQueue({ wallet, client });
+queue.addDispatchListener(({ item, attempt }) => console.log("dispatch", item.metadata, attempt));
+queue.addRetryListener(({ item, attempt }) => console.warn("retry", item.metadata, attempt));
+queue.enqueue({
+  destinationPublicKey: "CD".repeat(16),
+  amount: BigInt(1_000_000),
+  metadata: { batch: "airdrop-042" },
+});
+```
+
+## Monitoring & Telemetry
+
+Poll tick metadata and balances to feed dashboards or alerts:
+
+```ts
+import { BalanceMonitor, TickMonitor } from "@qubickit/core";
+
+const tickMonitor = new TickMonitor({ client: liveServiceClient, intervalMs: 2000 });
+tickMonitor.on("sample", (sample) => {
+  console.log(`[tick] #${sample.tick} (Δ${sample.deltaTick})`);
+});
+tickMonitor.start();
+
+const balanceMonitor = new BalanceMonitor({
+  client: liveServiceClient,
+  identities: ["SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK"],
+  intervalMs: 5000,
+});
+balanceMonitor.on("sample", ({ identity, balance, delta }) => {
+  console.log(`[balance] ${identity} = ${balance.toString()} (Δ ${delta.toString()})`);
+});
+balanceMonitor.start();
+
+// Optionally expose Prometheus metrics
+const registry = new TelemetryMetricsRegistry();
+tickMonitor.addSampleListener((sample) => registry.recordTick(sample));
+balanceMonitor.addSampleListener((sample) => registry.recordBalance(sample));
+const server = new PrometheusMetricsServer({ registry, port: 9400 });
+await server.start();
+```
+
+Record latency/error metrics using the instrumentation helper:
+
+```ts
+import { instrumentRequest, TelemetryMetricsRegistry } from "@qubickit/core";
+
+const registry = new TelemetryMetricsRegistry();
+const balance = await instrumentRequest(
+  () => liveServiceClient.getBalance("SUZ..."),
+  { name: "live.getBalance", registry },
+);
+console.log(balance.balance.balance);
+```
+
+Want a quick terminal dashboard? Run `bun run example:dashboard --identities=SUZ...,ABC...` to stream tick + balance summaries while serving Prometheus metrics on `:9400/metrics`.
+
+## Interop & Packaging
+
+- **gRPC live service** – `LiveServiceGrpcClient` (powered by `proto/qubic/live_service.proto`) talks directly to `QubicLiveService`. Point it at `api.qubic.org:8004` (or your node) to fetch ticks, balances, or broadcast transactions via gRPC.
+- **Browser bundles** – run `bun build src/index.ts --target browser --outdir dist/browser --external:@grpc/grpc-js --external:@grpc/proto-loader` to ship a tree-shaken ESM bundle that omits Node-only modules.
+- **Cross-runtime embedding** – build a Node-targeted bundle (`bun build src/index.ts --target node --outdir dist/node`) and load it via `node-ffi`, `napi-rs`, or WASM runtimes to share serialization/wallet logic with Rust, Python, etc. See `docs/interop.md` for details.
+
+## Advanced Wallet Tooling
+
+Derive deterministic accounts via path notation:
+
+```ts
+import { deriveWalletFromPath } from "@qubickit/core";
+
+const wallet5 = await deriveWalletFromPath(seed, "m/5");
+const treasury = await deriveWalletFromPath(seed, "m/0/0'");
+```
+
+Encrypt seeds for at-rest storage:
+
+```ts
+import { encryptSecret, decryptSecret } from "@qubickit/core";
+
+const encrypted = encryptSecret(seed, process.env.WALLET_PASS!);
+const decrypted = decryptSecret(encrypted, process.env.WALLET_PASS!);
+```
+
+Build unsigned bundles for offline signing:
+
+```ts
+import { createOfflineTransferBundle, signOfflineTransferBundle } from "@qubickit/core";
+
+const bundle = createOfflineTransferBundle({
+  sourcePublicKey: wallet.publicKey,
+  destinationPublicKey: destination,
+  amount: BigInt(10_000),
+  tick: tick + 10,
+});
+
+const signed = await signOfflineTransferBundle(bundle, wallet.privateKey);
+```
+
+## Proposal Templates & Registry
+
+Draft and simulate shareholder proposals using the built-in template registry:
+
+```ts
+import { createDefaultProposalRegistry } from "@qubickit/core";
+
+const registry = createDefaultProposalRegistry();
+
+const transferDraft = registry.build("transfer", {
+  epoch: 42,
+  destination: "SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK",
+  amount: BigInt(10_000),
+  description: "Fund operations",
+});
+
+const preview = registry.simulate("transfer", {
+  epoch: 42,
+  destination: transferDraft.transferOptions?.destination ?? "",
+  amount: transferDraft.transferOptions?.amount ?? BigInt(0),
+});
+console.log(preview?.summary);
+```
+
+Custom templates can be registered via `ProposalTemplateRegistry` to support your internal review flows.
+
+JSON drafts can be loaded and finalized via the workflow helpers:
+
+```ts
+import {
+  buildProposalFromDraft,
+  createDefaultProposalRegistry,
+  finalizeProposalsWithSummary,
+  parseProposalDraft,
+} from "@qubickit/core";
+
+const registry = createDefaultProposalRegistry();
+const draft = parseProposalDraft({
+  template: "transfer",
+  input: { epoch: 48, destination: "SUZ...", amount: 250_000 },
+});
+const { data, simulation } = buildProposalFromDraft(registry, draft, { simulate: true });
+console.log("Draft summary:", simulation?.summary);
+
+await finalizeProposalsWithSummary(coordinator, async (_proposal, ctx) => {
+  console.log("Finalized proposal:", ctx.summary);
+});
+```
 
 ## Node Connectors
 
@@ -207,6 +398,7 @@ The core types and their wire formats are defined in the native code; the TypeSc
 - Native documentation: `SEAMLESS.md` for network start modes and epoch-driven guards.
 - Proposal management: `doc/contracts_proposals.md` for share-holder lifecycles, voting summaries, and finalization macros.
 - Build references: `benchmark_uefi/CMakeLists.txt` and `lib/platform_common` CMake files showing include paths and compiler flags to keep TypeScript structs aligned.
+- Future ideas: see `docs/expansion.md` for “nice to have” enhancements (advanced wallet tooling, automation pipelines, monitoring, and more).
 
 ## Credits
 

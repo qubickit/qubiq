@@ -4,6 +4,8 @@ import { DefaultWalletDeriver, deriveWalletFromSeed } from "@wallet/wallet";
 
 const seed = "wqbdupxgcaimwdsnchitjmsplzclkqokhadgehdxqogeeiovzvadstt";
 const expectedId = "SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK";
+const accountOneId = "VLMJHFOWVWVIUBEMPPEAKCWCWYNCCDSNIZODOCLHEDMKHGVUDDYHNNVFNQUM";
+const accountOnePublic = "db37130a45c05e3d70b8a53ff61a5957803cb0b0ab72f96c8c8259bbfefba9c8";
 
 test("DefaultWalletDeriver derives deterministic keys", async () => {
   const deriver = new DefaultWalletDeriver();
@@ -18,4 +20,10 @@ test("DefaultWalletDeriver derives deterministic keys", async () => {
 test("deriveWalletFromSeed uses default deriver", async () => {
   const wallet = await deriveWalletFromSeed(seed);
   expect(wallet.identity).toBe(expectedId);
+});
+
+test("deriveWalletFromSeed supports account indexes", async () => {
+  const wallet = await deriveWalletFromSeed(seed, { accountIndex: 1 });
+  expect(wallet.identity).toBe(accountOneId);
+  expect(wallet.publicKey).toBe(accountOnePublic);
 });

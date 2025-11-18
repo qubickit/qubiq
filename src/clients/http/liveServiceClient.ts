@@ -59,9 +59,7 @@ export class LiveServiceClient extends HttpClient {
     return this.post("/v1/broadcast-transaction", payload, BroadcastTransactionResponseSchema);
   }
 
-  querySmartContract<T = unknown>(
-    payload: QuerySmartContractRequest,
-  ): Promise<QuerySmartContractResponse<T>> {
+  querySmartContract(payload: QuerySmartContractRequest): Promise<QuerySmartContractResponse> {
     return this.post("/v1/querySmartContract", payload);
   }
 }

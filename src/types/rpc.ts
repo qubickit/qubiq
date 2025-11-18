@@ -65,13 +65,14 @@ export interface BroadcastTransactionRequest {
 }
 
 export interface QuerySmartContractRequest {
-  contractAddress: string;
-  functionName: string;
-  parameters?: Array<string | number | boolean>;
+  contractIndex: number;
+  inputType: number;
+  inputSize: number;
+  requestData: string;
 }
 
-export interface QuerySmartContractResponse<T = unknown> {
-  result: T;
+export interface QuerySmartContractResponse {
+  responseData: string;
 }
 
 export const ArchiveTransactionSchema = z.object({
