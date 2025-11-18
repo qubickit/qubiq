@@ -1,3 +1,4 @@
+import type { DeriveQubicWalletOptions } from "./deriver";
 import { deriveQubicWallet } from "./deriver";
 import { normalizeSeed } from "./seed";
 import { SchnorrTransactionSigner } from "./signer";
@@ -10,13 +11,15 @@ export interface WalletKeys {
   privateKey: string;
 }
 
+export interface WalletDeriveParams extends DeriveQubicWalletOptions {}
+
 export interface WalletDeriver {
-  derive(seed: string): Promise<Omit<WalletKeys, "seed">>;
+  derive(seed: string, params?: WalletDeriveParams): Promise<Omit<WalletKeys, "seed">>;
 }
 
 export class DefaultWalletDeriver implements WalletDeriver {
-  async derive(seed: string): Promise<Omit<WalletKeys, "seed">> {
-    const result = await deriveQubicWallet(seed);
+  async derive(seed: string, params?: WalletDeriveParams): Promise<Omit<WalletKeys, "seed">> {
+    const result = await deriveQubicWallet(seed, params);
     return {
       identity: result.identity,
       publicKey: result.publicKeyHex,
@@ -31,28 +34,32 @@ export function setDefaultWalletDeriver(deriver: WalletDeriver) {
   defaultDeriver = deriver;
 }
 
+export interface DeriveWalletOptions extends WalletDeriveParams {
+  deriver?: WalletDeriver;
+}
+
+export interface CreateWalletOptions extends DeriveWalletOptions {
+  signer?: TransactionSigner;
+}
+
 export async function deriveWalletFromSeed(
   seed: string,
-  deriver: WalletDeriver = defaultDeriver,
+  options: DeriveWalletOptions = {},
 ): Promise<WalletKeys> {
   const normalizedSeed = normalizeSeed(seed);
-  const keys = await deriver.derive(normalizedSeed);
+  const { deriver = defaultDeriver, ...params } = options;
+  const keys = await deriver.derive(normalizedSeed, params);
   return {
     seed: normalizedSeed,
     ...keys,
   };
 }
 
-export interface CreateWalletOptions {
-  deriver?: WalletDeriver;
-  signer?: TransactionSigner;
-}
-
 export async function createWalletFromSeed(
   seed: string,
   options: CreateWalletOptions = {},
 ): Promise<Wallet> {
-  const keys = await deriveWalletFromSeed(seed, options.deriver ?? defaultDeriver);
+  const keys = await deriveWalletFromSeed(seed, options);
   const signer =
     options.signer ?? SchnorrTransactionSigner.fromPrivateKeyHex(keys.privateKey, keys.publicKey);
   return new Wallet(keys, signer);
