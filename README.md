@@ -82,6 +82,49 @@ const wallet0 = await deriveWalletFromSeed(seed);
 const wallet1 = await deriveWalletFromSeed(seed, { accountIndex: 1 });
 ```
 
+## Getting Started
+
+1. **Install dependencies**
+   ```bash
+   bun add @qubickit/core
+   ```
+   (Optional) Add the example scripts to your `package.json` by copying the ones listed in the “Examples & CLI helpers” section.
+
+2. **Configure environment variables**
+   - `QUBIC_ID`: Default identity used by watch/automation examples.
+   - `QUBIC_LIVE_URL`: Override the live-service base URL (`https://api.qubic.org` by default).
+
+3. **Bootstrap a wallet + client**
+   ```ts
+   import { QubicNodeClient, deriveWalletFromSeed } from "@qubickit/core";
+
+   const client = new QubicNodeClient();
+   const wallet = await deriveWalletFromSeed(process.env.QUBIC_SEED!);
+   const tick = (await client.getTickInfo()).tickInfo.tick;
+   const signed = await wallet.signTransfer({
+     destinationPublicKey: wallet.publicKey, // self
+     amount: BigInt(100),
+     tick: tick + 10,
+   });
+   await client.broadcastTransaction({ encodedTransaction: Buffer.from(signed.bytes).toString("base64") });
+   ```
+
+4. **Wire monitoring & automation**
+   ```ts
+   import { createAutomationRuntime } from "@qubickit/core";
+
+   const runtime = createAutomationRuntime("mainnet", {
+     onBalanceSnapshot: (snapshots) => console.log("balances", snapshots.length),
+   });
+   await runtime.start();
+   ```
+
+5. **Extend with proposals & interop**
+   - Use `ProposalTemplateRegistry`/`workflow` helpers to build proposal drafts.
+   - Swap HTTP clients for `LiveServiceGrpcClient` if you prefer gRPC transports (see `docs/interop.md`).
+
+> Tip: we’ll build a FumaDocs/Next.js docs site on top of these README sections, so treat this as the canonical “getting started” entry point until the site launches.
+
 ## Examples & CLI helpers
 
 - `bun run example:boot` – prints the recommended boot flag/mode/epoch using `BootManager`.
@@ -182,6 +225,10 @@ console.log(balance.balance.balance);
 ```
 
 Want a quick terminal dashboard? Run `bun run example:dashboard --identities=SUZ...,ABC...` to stream tick + balance summaries while serving Prometheus metrics on `:9400/metrics`.
+
+## API Surface
+
+The [Public API Surface](docs/api-surface.md) document lists every exported namespace (core, wallet, automation, monitoring, proposals, interop, testing) and notes which modules are considered experimental. Refer to it before depending on `@testing` or other helper namespaces in production code.
 
 ## Interop & Packaging
 

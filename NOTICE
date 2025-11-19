@@ -1,0 +1,6 @@
+This product includes derived work from the Qubic project.
+
+- Wallet derivation references the Qubic FourQ + KangarooTwelve pipeline (see `src/crypto/qubic`).
+- Proto files under `proto/qubic` mirror the public Qubic integration swagger/gRPC definitions.
+
+Special thanks to **j03t0m** for upstreaming the FourQ/K12 WASM shims that made deterministic wallets possible.
