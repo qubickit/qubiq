@@ -80,11 +80,12 @@ export abstract class HttpClient {
       });
 
       if (!response.ok) {
+        const raw = await response.text();
         let errorBody: unknown;
         try {
-          errorBody = await response.json();
+          errorBody = raw ? JSON.parse(raw) : raw;
         } catch {
-          errorBody = await response.text();
+          errorBody = raw;
         }
         throw new HttpError(
           `Request to ${path} failed with status ${response.status}`,
