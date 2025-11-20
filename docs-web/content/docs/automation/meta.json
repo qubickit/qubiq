@@ -1,0 +1,6 @@
+{
+  "title": "Automation & Ops",
+  "icon": "Workflow",
+  "defaultOpen": true,
+  "pages": ["index", "monitoring", "boot"]
+}

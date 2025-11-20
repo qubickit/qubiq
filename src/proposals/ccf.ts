@@ -1,4 +1,5 @@
 import type { LiveServiceClient } from "@clients/http/liveServiceClient";
+import { base64ToBytes, bytesToBase64 } from "@src/utils/base64";
 import { bytesToHex } from "@src/utils/bytes";
 import type { ShareholderProposal } from "@types";
 import { ShareholderProposalSchema } from "@types";
@@ -80,9 +81,9 @@ async function callContractFunction(
     contractIndex,
     inputType,
     inputSize: payload.length,
-    requestData: Buffer.from(payload).toString("base64"),
+    requestData: bytesToBase64(payload),
   });
-  return Buffer.from(response.responseData, "base64");
+  return base64ToBytes(response.responseData);
 }
 
 function encodeGetProposalIndicesInput(active: boolean, prevIndex: number) {

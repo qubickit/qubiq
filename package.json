@@ -53,9 +53,10 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "bignumber.js": "^9.3.1",
     "@grpc/grpc-js": "^1.10.5",
     "@grpc/proto-loader": "^0.7.10",
+    "bignumber.js": "^9.3.1",
+    "react-bits": "^1.0.5",
     "zod": "^4.1.12"
   }
 }

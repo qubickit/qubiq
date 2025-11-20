@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import type { QubicNodeClient } from "@node/qubicNodeClient";
+import { bytesToBase64 } from "@src/utils/base64";
 import type {
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
@@ -145,7 +146,7 @@ export class TransactionQueue extends EventEmitter {
       amount: entry.item.amount,
       tick: nextTick,
     });
-    const encodedTransaction = Buffer.from(signed.bytes).toString("base64");
+    const encodedTransaction = bytesToBase64(signed.bytes);
     const payload: BroadcastTransactionRequest = {
       encodedTransaction,
       metadata: entry.item.metadata,

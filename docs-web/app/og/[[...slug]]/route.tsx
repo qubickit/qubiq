@@ -1,0 +1,38 @@
+import { generate as DefaultImage } from "fumadocs-ui/og";
+import { notFound } from "next/navigation";
+import { ImageResponse } from "next/og";
+import { getPageImage, source } from "@/lib/source";
+
+export const revalidate = false;
+
+function resolveSlug(slug: string[] | undefined) {
+  if (Array.isArray(slug) && slug.length > 0) {
+    return slug;
+  }
+  return ["index"];
+}
+
+export async function GET(_req: Request, { params }: RouteContext<"/og/[[...slug]]">) {
+  const { slug } = await params;
+  const resolved = resolveSlug(slug);
+  const page = source.getPage(resolved);
+  if (!page) notFound();
+
+  return new ImageResponse(
+    <DefaultImage
+      title={page.data.title}
+      description={page.data.description}
+      site="QubicKit Core"
+    />,
+    {
+      width: 1200,
+      height: 630,
+    },
+  );
+}
+
+export function generateStaticParams() {
+  return source.getPages().map((page) => ({
+    slug: getPageImage(page).segments,
+  }));
+}
