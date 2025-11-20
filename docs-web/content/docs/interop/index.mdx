@@ -1,0 +1,41 @@
+---
+title: Proto Reference
+description: Use the extended live_service.proto as the source of truth for all HTTP clients today—and future gRPC endpoints once they open up.
+---
+
+## Proto location
+
+`proto/qubic/live_service.proto` consolidates:
+
+- Live service (tick info, block height, balances, broadcast, contract query).
+- Assets (issuances, ownerships, possessions, identity asset lists, owners).
+- Stats API (latest data, rich list).
+- Query service (transactions, tick data, computor lists, processed intervals).
+- Archive service (health/status, tick snapshots, identity transfers).
+
+We mirror the swagger specs published under `https://qubic.github.io/integration/Partners/swagger/` so the file stays compatible with the HTTP API.
+
+## Status of gRPC access
+
+At the moment the public Qubic infrastructure exposes only HTTP endpoints. The proto exists for self-hosted nodes and future gRPC access, but `LiveServiceGrpcClient` ships disabled so the package doesn’t imply a working public endpoint prematurely.
+
+If you run your own node, you can generate stubs like this:
+
+```bash
+npx protoc --ts_out=grpc_js:./generated --grpc_out=grpc_js:./generated \
+  proto/qubic/live_service.proto
+```
+
+Then wire them into whatever language/runtime you need.
+
+## HTTP parity
+
+Every HTTP method implemented by `LiveServiceClient`, `QueryServiceClient`, and `ArchiveClient` maps directly to a proto definition. Treat the proto as the canonical schema even when you stay on HTTP—it’s the same data model.
+
+## Roadmap
+
+- ✅ HTTP clients + Zod validation (current release).
+- 💤 gRPC helpers disabled until Qubic opens the port.
+- 🚧 Examples/docs will be updated once the public endpoint lands.
+
+Until then, focus on the HTTP clients, automation runtime, and examples showcased throughout the docs.

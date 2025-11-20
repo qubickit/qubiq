@@ -4,6 +4,9 @@ import type {
   BlockHeightResponse,
   BroadcastTransactionRequest,
   BroadcastTransactionResponse,
+  IssuedAssetsResponse,
+  OwnedAssetsResponse,
+  PossessedAssetsResponse,
   QuerySmartContractRequest,
   QuerySmartContractResponse,
   TickInfoResponse,
@@ -12,6 +15,9 @@ import {
   BalanceResponseSchema,
   BlockHeightResponseSchema,
   BroadcastTransactionResponseSchema,
+  IssuedAssetsResponseSchema,
+  OwnedAssetsResponseSchema,
+  PossessedAssetsResponseSchema,
   TickInfoResponseSchema,
 } from "@types";
 import type { HttpClientOptions } from "./baseClient";
@@ -41,16 +47,16 @@ export class LiveServiceClient extends HttpClient {
     return this.get("/v1/block-height", BlockHeightResponseSchema);
   }
 
-  getAssetsIssuedBy(identity: string) {
-    return this.get(`/v1/assets/${identity}/issued`);
+  getAssetsIssuedBy(identity: string): Promise<IssuedAssetsResponse> {
+    return this.get(`/v1/assets/${identity}/issued`, IssuedAssetsResponseSchema);
   }
 
-  getAssetsOwnedBy(identity: string) {
-    return this.get(`/v1/assets/${identity}/owned`);
+  getAssetsOwnedBy(identity: string): Promise<OwnedAssetsResponse> {
+    return this.get(`/v1/assets/${identity}/owned`, OwnedAssetsResponseSchema);
   }
 
-  getAssetsPossessedBy(identity: string) {
-    return this.get(`/v1/assets/${identity}/possessed`);
+  getAssetsPossessedBy(identity: string): Promise<PossessedAssetsResponse> {
+    return this.get(`/v1/assets/${identity}/possessed`, PossessedAssetsResponseSchema);
   }
 
   broadcastTransaction(

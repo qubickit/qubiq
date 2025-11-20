@@ -1,0 +1,71 @@
+---
+title: Serialization & Wire Formats
+description: Encode and decode Qubic transactions, headers, and bytes without re-implementing the node.
+---
+
+`@qubickit/core/serialization` keeps the tricky byte layouts close to the original C++ codebase. Downstream SDKs can reuse these helpers for signing flows, transaction builders, or gRPC bridges.
+
+## Transaction encoding
+
+```ts
+import { encodeTransaction, decodeTransaction } from "@qubickit/core/serialization";
+
+const encoded = encodeTransaction({
+  sourcePublicKey: "ab".repeat(32),
+  destinationPublicKey: "cd".repeat(32),
+  amount: BigInt(1_000_000),
+  tick: 123,
+  inputType: 1,
+  inputSize: 0,
+  signature: "ef".repeat(64),
+});
+
+const parsed = decodeTransaction(encoded);
+```
+
+- Layout: 32-byte source + 32-byte destination + 8-byte amount + 4-byte tick + 2-byte input type + 2-byte input size + payload + 64-byte signature.
+- Guards: Zod schema validation, signature length enforcement, payload/inputSize consistency checks.
+- Works with both `Uint8Array` and hex strings.
+
+<details>
+  <summary>Useful constants</summary>
+
+- `PUBLIC_KEY_BYTES`, `AMOUNT_BYTES`, `TICK_BYTES`, `INPUT_TYPE_BYTES`, `INPUT_SIZE_BYTES`, `SIGNATURE_BYTES`
+- `TRANSACTION_HEADER_BYTES` to size buffers ahead of time.
+
+</details>
+
+## Request/response headers
+
+```ts
+import {
+  encodeRequestResponseHeader,
+  decodeRequestResponseHeader,
+  REQUEST_RESPONSE_HEADER_SIZE,
+} from "@qubickit/core/serialization";
+
+const headerBytes = encodeRequestResponseHeader({
+  size: 1024,
+  type: MessageType.REQUEST_TICK_DATA,
+  dejavu: 42,
+});
+const header = decodeRequestResponseHeader(headerBytes);
+```
+
+- Implements the 24-bit size + 1-byte type + 4-byte dejavu format the node expects.
+- Validates `MessageType` enums and throws when the payload exceeds 24-bit constraints.
+
+## Byte helpers
+
+Re-exported from `@qubickit/core/utils/bytes`:
+
+```ts
+import { hexToBytes, bytesToHex, concatBytes } from "@qubickit/core/utils";
+```
+
+Use them to prepare payloads before encoding transactions or contract calls.
+
+## Tests & fixtures
+
+- `tests/serialization/transaction.test.ts` double-checks encoding/decoding parity.
+- Use fixtures with automation pipelines to ensure offline bundles or queue dispatchers emit the exact bytes expected by the network.

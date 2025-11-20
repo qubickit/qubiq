@@ -55,7 +55,11 @@ export class WalletWatcher {
 
   async start(): Promise<void> {
     if (this.timer) return;
-    await this.pollOnce();
+    try {
+      await this.pollOnce();
+    } catch (error) {
+      this.emit("error", error as Error);
+    }
     this.timer = setInterval(() => {
       this.pollOnce().catch((error) => this.emit("error", error));
     }, this.pollIntervalMs);

@@ -1,0 +1,77 @@
+---
+title: Getting Started
+description: Install @qubickit/core, bootstrap wallets, and run automation in minutes.
+---
+
+`@qubickit/core` mirrors the native Qubic node lifecycle in TypeScript. Follow this quickstart to derive a wallet, sign a transaction, and boot the automation runtime. Jump to deeper topics via the "Next steps" list below.
+
+## 1. Install dependencies
+
+```bash
+bun add @qubickit/core
+```
+
+For gRPC usage add:
+
+```bash
+bun add @grpc/grpc-js @grpc/proto-loader
+```
+
+## 2. Quickstart script
+
+```ts
+import { QubicNodeClient, deriveWalletFromSeed } from "@qubickit/core";
+
+const client = new QubicNodeClient();
+const wallet = await deriveWalletFromSeed(process.env.QUBIC_SEED!);
+const { tickInfo } = await client.getTickInfo();
+
+const signed = await wallet.signTransfer({
+  destinationPublicKey: wallet.publicKey,
+  amount: BigInt(1000),
+  tick: tickInfo.tick + 10,
+});
+
+await client.broadcastTransaction({
+  encodedTransaction: Buffer.from(signed.bytes).toString("base64"),
+});
+```
+
+## 3. Automation runtime
+
+```ts
+import { createAutomationRuntime } from "@qubickit/core";
+
+const runtime = createAutomationRuntime("mainnet", {
+  onBalanceSnapshot: (snapshots) => console.log("snapshots", snapshots.length),
+  onProposals: ({ epoch, proposals }) => console.log(epoch, proposals.length),
+});
+
+await runtime.start();
+```
+
+## 4. Build artifacts
+
+```bash
+bun run build         # node + browser bundles
+bun run build:node
+bun run build:browser
+```
+
+Artifacts land in `dist/node` + `dist/browser` for cross-runtime embedding.
+
+## 5. Environment tips
+
+| Variable | Purpose |
+| --- | --- |
+| `QUBIC_SEED` | 55-char lowercase seed for wallet derivation |
+| `QUBIC_LIVE_URL` | Override live-service HTTP base (defaults to https://api.qubic.org) |
+| `QUBIC_SMOKE_TESTS` | Set to `true` to run live smoke tests via `bun test` |
+
+## 6. Next steps
+
+- [_Architecture_](/foundations/architecture)
+- [_Module Reference_](/foundations/modules)
+- [_Automation & Monitoring_](/automation)
+- [_Wallets & Signing_](/wallets)
+- [_Interop & Protos_](/interop)

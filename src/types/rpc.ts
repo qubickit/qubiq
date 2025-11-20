@@ -47,6 +47,28 @@ export const BalanceResponseSchema = z.object({
 });
 export type BalanceResponse = z.infer<typeof BalanceResponseSchema>;
 
+const AssetEntrySchema = z
+  .object({
+    assetId: z.string().optional(),
+    amount: nonEmptyString.optional(),
+  })
+  .passthrough();
+
+export const IssuedAssetsResponseSchema = z.object({
+  issuedAssets: z.array(AssetEntrySchema),
+});
+export type IssuedAssetsResponse = z.infer<typeof IssuedAssetsResponseSchema>;
+
+export const OwnedAssetsResponseSchema = z.object({
+  ownedAssets: z.array(AssetEntrySchema),
+});
+export type OwnedAssetsResponse = z.infer<typeof OwnedAssetsResponseSchema>;
+
+export const PossessedAssetsResponseSchema = z.object({
+  possessedAssets: z.array(AssetEntrySchema),
+});
+export type PossessedAssetsResponse = z.infer<typeof PossessedAssetsResponseSchema>;
+
 export const BroadcastTransactionResponseSchema = z.object({
   transactionId: nonEmptyString,
   encodedTransaction: z.string().optional(),

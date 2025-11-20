@@ -1,0 +1,6 @@
+{
+  "title": "Foundations",
+  "icon": "Layers",
+  "defaultOpen": true,
+  "pages": ["getting-started", "architecture", "modules", "config", "typescript"]
+}

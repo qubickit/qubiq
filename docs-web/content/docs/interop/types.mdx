@@ -1,0 +1,61 @@
+---
+title: Types & Schemas
+description: Runtime-validated schemas for identities, ticks, proposals, and RPC payloads.
+---
+
+Import everything from `@qubickit/core/types` (or the narrower `@qubickit/core/types/rpc`) when you need fully typed data structures that also validate at runtime via Zod.
+
+## Core schemas
+
+```ts
+import { TransactionSchema, ProposalDataSchema, MessageType } from "@qubickit/core/types";
+
+const tx = TransactionSchema.parse(candidateTx);
+if (tx.inputSize > 0) {
+  console.log("has payload");
+}
+```
+
+- Transaction + request/response header layouts mirror the node.
+- Proposal enums (`ProposalClass`) and payload schemas slot straight into governance tooling.
+- `MessageType` enumerations map to on-the-wire values for TCP connectors.
+
+## RPC types
+
+```ts
+import {
+  BalanceResponseSchema,
+  QueryTransactionsByIdentityRequestSchema,
+} from "@qubickit/core/types/rpc";
+
+const payload = QueryTransactionsByIdentityRequestSchema.parse({ identity: "SUZ...", limit: 50 });
+const balance = await live.getBalance(payload.identity);
+```
+
+- Covers all swagger surfaces: live, archive, query, stats, assets.
+- Helps you coerce CLI arguments or HTTP body payloads before hitting the network.
+- Zod types double as validators when handling webhook-style callbacks.
+
+## Identity utilities
+
+```ts
+import { IdentityStringSchema, HashStringSchema } from "@qubickit/core/types/rpc";
+
+IdentityStringSchema.parse("SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK"); // valid example
+```
+
+Avoid reinventing the canonical regex patterns for Qubic identities, hashes, and keys.
+
+## Type exports
+
+Most schemas also export their inferred TypeScript types:
+
+- `export type Transaction = z.infer<typeof TransactionSchema>;`
+- `export type BalanceResponse = z.infer<typeof BalanceResponseSchema>;`
+- `export type ShareholderProposal = z.infer<typeof ShareholderProposalSchema>;`
+
+Use them to type HTTP handlers, React hooks, or CLI commands without duplicating interfaces.
+
+## IDE-friendly TSDoc
+
+Every schema + interface comes with inline docstrings, so editors show remarks/descriptions automatically. Combined with the Fumadocs `.source` generation, you can embed these TSDoc comments in future API reference pages or SDK portals.

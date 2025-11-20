@@ -26,6 +26,7 @@ export interface AutomationProfile {
   watchIdentities?: string[];
   ccfEpochOverride?: number;
   intervals?: AutomationProfileIntervals;
+  enableProposals?: boolean;
 }
 
 export const DEFAULT_AUTOMATION_PROFILES: Record<"mainnet" | "testnet", AutomationProfile> = {
@@ -39,6 +40,7 @@ export const DEFAULT_AUTOMATION_PROFILES: Record<"mainnet" | "testnet", Automati
       proposalPollMs: 120_000,
       tickMonitorMs: 5_000,
     },
+    enableProposals: false,
   },
   testnet: {
     name: "testnet",
@@ -50,6 +52,7 @@ export const DEFAULT_AUTOMATION_PROFILES: Record<"mainnet" | "testnet", Automati
       proposalPollMs: 120_000,
       tickMonitorMs: 5_000,
     },
+    enableProposals: false,
   },
 };
 
@@ -127,17 +130,22 @@ export function createAutomationRuntime(
     });
   }
 
-  const proposalJob = createProposalPollerJob({
-    fetch: () => fetchCcfProposalsFromContract(client, profile.ccfEpochOverride),
-    onUpdate: options.onProposals,
-  });
+  const shouldPollProposals =
+    profile.enableProposals !== undefined ? profile.enableProposals : Boolean(options.onProposals);
 
-  pipeline.addTask({
-    name: `${profile.name}-ccf-proposals`,
-    job: proposalJob,
-    intervalMs: profile.intervals?.proposalPollMs ?? 120_000,
-    runOnStart: true,
-  });
+  if (shouldPollProposals) {
+    const proposalJob = createProposalPollerJob({
+      fetch: () => fetchCcfProposalsFromContract(client, profile.ccfEpochOverride),
+      onUpdate: options.onProposals,
+    });
+
+    pipeline.addTask({
+      name: `${profile.name}-ccf-proposals`,
+      job: proposalJob,
+      intervalMs: profile.intervals?.proposalPollMs ?? 120_000,
+      runOnStart: true,
+    });
+  }
 
   const tickMonitor = profile.intervals?.tickMonitorMs
     ? new TickMonitor({

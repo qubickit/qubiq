@@ -2,17 +2,28 @@ syntax = "proto3";
 
 package qubic.live;
 
+message Empty {}
+
+// -----------------------------------------------------------------------------
+// Tick / Balance / Core endpoints
+// -----------------------------------------------------------------------------
 message TickInfoRequest {}
 
 message TickInfoMetadata {
-  uint32 tick = 1;
-  uint32 epoch = 2;
-  uint32 duration = 3;
-  uint32 initialTick = 4;
+  uint64 tick = 1;
+  uint64 epoch = 2;
+  uint64 duration = 3;
+  uint64 initialTick = 4;
 }
 
 message TickInfoResponse {
   TickInfoMetadata tickInfo = 1;
+}
+
+message BlockHeightRequest {}
+
+message BlockHeightResponse {
+  uint64 blockHeight = 1;
 }
 
 message BalanceRequest {
@@ -20,13 +31,15 @@ message BalanceRequest {
 }
 
 message BalanceRecord {
-  string balance = 1;
-  string incomingAmount = 2;
-  string outgoingAmount = 3;
-  uint32 numberOfIncomingTransfers = 4;
-  uint32 numberOfOutgoingTransfers = 5;
-  uint32 latestIncomingTransferTick = 6;
-  uint32 latestOutgoingTransferTick = 7;
+  string id = 1;
+  string balance = 2;
+  uint64 validForTick = 3;
+  uint64 latestIncomingTransferTick = 4;
+  uint64 latestOutgoingTransferTick = 5;
+  string incomingAmount = 6;
+  string outgoingAmount = 7;
+  uint64 numberOfIncomingTransfers = 8;
+  uint64 numberOfOutgoingTransfers = 9;
 }
 
 message BalanceResponse {
@@ -40,10 +53,350 @@ message BroadcastTransactionRequest {
 
 message BroadcastTransactionResponse {
   string transactionId = 1;
+  int32 peersBroadcasted = 2;
+  string encodedTransaction = 3;
 }
 
+// -----------------------------------------------------------------------------
+// Smart contract query
+// -----------------------------------------------------------------------------
+message QuerySmartContractRequest {
+  uint64 contractIndex = 1;
+  uint64 inputType = 2;
+  uint64 inputSize = 3;
+  bytes requestData = 4;
+}
+
+message QuerySmartContractResponse {
+  bytes responseData = 1;
+}
+
+// -----------------------------------------------------------------------------
+// Asset endpoints
+// -----------------------------------------------------------------------------
+message AssetIssuanceData {
+  string issuerIdentity = 1;
+  uint64 type = 2;
+  string name = 3;
+  uint32 numberOfDecimalPlaces = 4;
+  repeated int32 unitOfMeasurement = 5;
+}
+
+message AssetInfo {
+  uint64 tick = 1;
+  uint64 universeIndex = 2;
+}
+
+message AssetIssuance {
+  AssetIssuanceData data = 1;
+  AssetInfo info = 2;
+}
+
+message AssetIssuancesResponse {
+  repeated AssetIssuance assets = 1;
+}
+
+message AssetOwnershipData {
+  string ownerIdentity = 1;
+  uint64 type = 2;
+  uint64 managingContractIndex = 3;
+  uint64 issuanceIndex = 4;
+  string numberOfUnits = 5;
+}
+
+message AssetOwnership {
+  AssetOwnershipData data = 1;
+  AssetInfo info = 2;
+}
+
+message AssetOwnershipsResponse {
+  repeated AssetOwnership assets = 1;
+}
+
+message AssetPossessionData {
+  string possessorIdentity = 1;
+  uint64 type = 2;
+  uint64 managingContractIndex = 3;
+  uint64 ownershipIndex = 4;
+  string numberOfUnits = 5;
+}
+
+message AssetPossession {
+  AssetPossessionData data = 1;
+  AssetInfo info = 2;
+}
+
+message AssetPossessionsResponse {
+  repeated AssetPossession assets = 1;
+}
+
+message IssuedAsset {
+  AssetIssuanceData data = 1;
+  AssetInfo info = 2;
+}
+
+message OwnedAssetData {
+  string ownerIdentity = 1;
+  uint64 type = 2;
+  uint64 managingContractIndex = 3;
+  uint64 issuanceIndex = 4;
+  string numberOfUnits = 5;
+  AssetIssuanceData issuedAsset = 6;
+}
+
+message OwnedAsset {
+  OwnedAssetData data = 1;
+  AssetInfo info = 2;
+}
+
+message PossessedAssetData {
+  string possessorIdentity = 1;
+  uint64 type = 2;
+  uint64 managingContractIndex = 3;
+  uint64 issuanceIndex = 4;
+  string numberOfUnits = 5;
+  OwnedAssetData ownedAsset = 6;
+}
+
+message PossessedAsset {
+  PossessedAssetData data = 1;
+  AssetInfo info = 2;
+}
+
+message IssuedAssetsResponse {
+  repeated IssuedAsset issuedAssets = 1;
+}
+
+message OwnedAssetsResponse {
+  repeated OwnedAsset ownedAssets = 1;
+}
+
+message PossessedAssetsResponse {
+  repeated PossessedAsset possessedAssets = 1;
+}
+
+message AssetIssuanceFilterRequest {
+  string issuerIdentity = 1;
+  string assetName = 2;
+}
+
+message AssetOwnershipFilterRequest {
+  string issuerIdentity = 1;
+  string assetName = 2;
+  string ownerIdentity = 3;
+  uint64 ownershipManagingContract = 4;
+}
+
+message AssetPossessionFilterRequest {
+  string issuerIdentity = 1;
+  string assetName = 2;
+  string possessorIdentity = 3;
+  uint64 managingContractIndex = 4;
+}
+
+message AssetIndexRequest {
+  uint64 index = 1;
+}
+
+message IdentityAssetsRequest {
+  string identity = 1;
+}
+
+message IssuerAssetOwnersRequest {
+  string issuerIdentity = 1;
+  string assetName = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Stats endpoints
+// -----------------------------------------------------------------------------
+message LatestStatsRequest {}
+
+message QubicStats {
+  uint64 timestamp = 1;
+  string circulatingSupply = 2;
+  uint32 activeAddresses = 3;
+  double price = 4;
+  string marketCap = 5;
+  uint64 epoch = 6;
+  uint64 currentTick = 7;
+  uint64 ticksInCurrentEpoch = 8;
+  uint64 emptyTicksInCurrentEpoch = 9;
+  double epochTickQuality = 10;
+  string burnedQus = 11;
+}
+
+message LatestStatsResponse {
+  QubicStats data = 1;
+}
+
+message RichListRequest {
+  uint32 page = 1;
+  uint32 pageSize = 2;
+}
+
+message RichListEntity {
+  string identity = 1;
+  string balance = 2;
+}
+
+message RichListResponse {
+  repeated RichListEntity entities = 1;
+}
+
+// -----------------------------------------------------------------------------
+// Query service endpoints
+// -----------------------------------------------------------------------------
+message TransactionRecord {
+  string hash = 1;
+  string amount = 2;
+  string source = 3;
+  string destination = 4;
+  uint64 tickNumber = 5;
+  uint64 timestamp = 6;
+  uint64 inputType = 7;
+  uint64 inputSize = 8;
+  bytes inputData = 9;
+  bytes signature = 10;
+  bool moneyFlew = 11;
+}
+
+message TransactionHashRequest {
+  string hash = 1;
+}
+
+message TransactionsForIdentityRequest {
+  string identity = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+}
+
+message TransactionsForIdentityResponse {
+  repeated TransactionRecord transactions = 1;
+}
+
+message TransactionsForTickRequest {
+  uint64 tickNumber = 1;
+}
+
+message TransactionsForTickResponse {
+  repeated TransactionRecord transactions = 1;
+}
+
+message TransactionResponse {
+  TransactionRecord transaction = 1;
+}
+
+message TickNumberRequest {
+  uint64 tickNumber = 1;
+}
+
+message TickData {
+  uint64 tickNumber = 1;
+  uint64 epoch = 2;
+  uint64 computorIndex = 3;
+  uint64 timestamp = 4;
+  string varStruct = 5;
+  string timeLock = 6;
+  repeated string transactionHashes = 7;
+  repeated string contractFees = 8;
+  bytes signature = 9;
+}
+
+message TickDataResponse {
+  TickData tick = 1;
+}
+
+message LastProcessedTickResponse {
+  uint64 tickNumber = 1;
+}
+
+message ProcessedTickInterval {
+  uint64 epoch = 1;
+  uint64 firstTick = 2;
+  uint64 lastTick = 3;
+}
+
+message ProcessedTickIntervalsResponse {
+  repeated ProcessedTickInterval intervals = 1;
+}
+
+message ComputorListEntry {
+  uint64 epoch = 1;
+  bytes listHash = 2;
+  repeated string identities = 3;
+}
+
+message ComputorListsRequest {
+  uint64 epoch = 1;
+}
+
+message ComputorListsResponse {
+  repeated ComputorListEntry lists = 1;
+}
+
+// -----------------------------------------------------------------------------
+// Archive endpoints
+// -----------------------------------------------------------------------------
+message IdentityTransfersRequest {
+  string identity = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+}
+
+message TransferTransactionsResponse {
+  repeated TransactionRecord transactions = 1;
+}
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+message ArchiveStatusResponse {
+  string status = 1;
+  uint64 tick = 2;
+  uint64 epoch = 3;
+}
+
+// -----------------------------------------------------------------------------
+// Service definition
+// -----------------------------------------------------------------------------
 service QubicLiveService {
   rpc GetTickInfo (TickInfoRequest) returns (TickInfoResponse);
+  rpc GetBlockHeight (BlockHeightRequest) returns (BlockHeightResponse);
   rpc GetBalance (BalanceRequest) returns (BalanceResponse);
   rpc BroadcastTransaction (BroadcastTransactionRequest) returns (BroadcastTransactionResponse);
+  rpc QuerySmartContract (QuerySmartContractRequest) returns (QuerySmartContractResponse);
+
+  // Assets
+  rpc GetAssetIssuances (AssetIssuanceFilterRequest) returns (AssetIssuancesResponse);
+  rpc GetAssetIssuanceByIndex (AssetIndexRequest) returns (AssetIssuance);
+  rpc GetAssetOwnerships (AssetOwnershipFilterRequest) returns (AssetOwnershipsResponse);
+  rpc GetAssetOwnershipByIndex (AssetIndexRequest) returns (AssetOwnership);
+  rpc GetAssetPossessions (AssetPossessionFilterRequest) returns (AssetPossessionsResponse);
+  rpc GetAssetPossessionByIndex (AssetIndexRequest) returns (AssetPossession);
+  rpc GetIssuedAssetsForIdentity (IdentityAssetsRequest) returns (IssuedAssetsResponse);
+  rpc GetOwnedAssetsForIdentity (IdentityAssetsRequest) returns (OwnedAssetsResponse);
+  rpc GetPossessedAssetsForIdentity (IdentityAssetsRequest) returns (PossessedAssetsResponse);
+  rpc GetAssetOwners (IssuerAssetOwnersRequest) returns (AssetOwnershipsResponse);
+
+  // Stats
+  rpc GetLatestStats (LatestStatsRequest) returns (LatestStatsResponse);
+  rpc GetRichList (RichListRequest) returns (RichListResponse);
+
+  // Query service
+  rpc GetTransactionByHash (TransactionHashRequest) returns (TransactionResponse);
+  rpc GetTransactionsForIdentity (TransactionsForIdentityRequest) returns (TransactionsForIdentityResponse);
+  rpc GetTransactionsForTick (TransactionsForTickRequest) returns (TransactionsForTickResponse);
+  rpc GetTickData (TickNumberRequest) returns (TickDataResponse);
+  rpc GetLastProcessedTick (Empty) returns (LastProcessedTickResponse);
+  rpc GetProcessedTickIntervals (Empty) returns (ProcessedTickIntervalsResponse);
+  rpc GetComputorLists (ComputorListsRequest) returns (ComputorListsResponse);
+
+  // Archive
+  rpc GetArchiveHealth (Empty) returns (HealthCheckResponse);
+  rpc GetArchiveStatus (Empty) returns (ArchiveStatusResponse);
+  rpc GetLatestArchiveTick (Empty) returns (TickDataResponse);
+  rpc GetTransferTransactionsForIdentity (IdentityTransfersRequest) returns (TransferTransactionsResponse);
+  rpc GetArchiveTransactionsForTick (TickNumberRequest) returns (TransactionsForTickResponse);
 }

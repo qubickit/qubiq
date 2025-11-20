@@ -1,0 +1,53 @@
+---
+title: Configuration & Environments
+description: Control base URLs, polling intervals, and runtime flags shared across modules.
+---
+
+`@qubickit/core/config` centralizes knobs for live, query, and archive services so you can boot the library in different environments (prod, staging, air-gapped).
+
+## ClientConfig basics
+
+```ts
+import type { ClientConfig } from "@qubickit/core";
+import { createClients } from "@qubickit/core";
+
+const config: ClientConfig = {
+  liveBaseUrl: "https://api.qubic.org",
+  queryServiceBaseUrl: "https://query.qubic.org",
+  archiveBaseUrl: "https://archive.qubic.org",
+  pollIntervalMs: 1_000,
+};
+
+const { live, query, archive } = createClients(config);
+```
+
+- Defaults match the public infrastructure, but everything is overridable.
+- Feed the same config into connectors, automation runtimes, or CLI scripts to keep behavior consistent.
+
+## Factory helpers
+
+`createHttpConnector` and `createAutomationRuntime` accept `ClientConfig`, so you can define environments once (YAML, `.env`, etc.) and pass them everywhere.
+
+```ts
+const runtime = createAutomationRuntime("custom", {
+  liveBaseUrl: config.liveBaseUrl,
+  queryServiceBaseUrl: config.queryServiceBaseUrl,
+  pollIntervalMs: config.pollIntervalMs,
+});
+```
+
+## Environment separation
+
+<details>
+  <summary>Recommended layout</summary>
+
+- `LIVE_BASE_URL` — production API.
+- `QUERY_SERVICE_BASE_URL` — analytics cluster/headless replica.
+- `ARCHIVE_BASE_URL` — long-term storage (may be private).
+- `POLL_INTERVAL_MS` — throttle watchers/pipelines for staging.
+
+</details>
+
+## Defaults
+
+The module exports `DEFAULT_LIVE_BASE_URL`, `DEFAULT_QUERY_SERVICE_BASE_URL`, and `DEFAULT_ARCHIVE_BASE_URL`. Reference them when you want to fall back to public infrastructure but still allow overrides.
