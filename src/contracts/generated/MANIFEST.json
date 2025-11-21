@@ -1,0 +1,180 @@
+{
+  "generatedAt": "2025-11-21T10:17:07.895Z",
+  "contracts": [
+    {
+      "name": "TestExampleA",
+      "header": "TestExampleA.h",
+      "file": "test-example-a.ts",
+      "functions": 10,
+      "procedures": 12
+    },
+    {
+      "name": "qpi",
+      "header": "qpi.h",
+      "file": "qpi.ts",
+      "functions": 5,
+      "procedures": 2
+    },
+    {
+      "name": "Random",
+      "header": "Random.h",
+      "file": "random.ts",
+      "functions": 0,
+      "procedures": 1
+    },
+    {
+      "name": "QUtil",
+      "header": "QUtil.h",
+      "file": "qutil.ts",
+      "functions": 8,
+      "procedures": 8
+    },
+    {
+      "name": "Qswap",
+      "header": "Qswap.h",
+      "file": "qswap.ts",
+      "functions": 8,
+      "procedures": 11
+    },
+    {
+      "name": "Qbay",
+      "header": "Qbay.h",
+      "file": "qbay.ts",
+      "functions": 9,
+      "procedures": 17
+    },
+    {
+      "name": "TestExampleB",
+      "header": "TestExampleB.h",
+      "file": "test-example-b.ts",
+      "functions": 3,
+      "procedures": 12
+    },
+    {
+      "name": "Quottery",
+      "header": "Quottery.h",
+      "file": "quottery.ts",
+      "functions": 5,
+      "procedures": 4
+    },
+    {
+      "name": "ComputorControlledFund",
+      "header": "ComputorControlledFund.h",
+      "file": "computor-controlled-fund.ts",
+      "functions": 6,
+      "procedures": 2
+    },
+    {
+      "name": "RandomLottery",
+      "header": "RandomLottery.h",
+      "file": "random-lottery.ts",
+      "functions": 10,
+      "procedures": 3
+    },
+    {
+      "name": "Qdraw",
+      "header": "Qdraw.h",
+      "file": "qdraw.ts",
+      "functions": 2,
+      "procedures": 1
+    },
+    {
+      "name": "MyLastMatch",
+      "header": "MyLastMatch.h",
+      "file": "my-last-match.ts",
+      "functions": 0,
+      "procedures": 0
+    },
+    {
+      "name": "EmptyTemplate",
+      "header": "EmptyTemplate.h",
+      "file": "empty-template.ts",
+      "functions": 0,
+      "procedures": 0
+    },
+    {
+      "name": "GeneralQuorumProposal",
+      "header": "GeneralQuorumProposal.h",
+      "file": "general-quorum-proposal.ts",
+      "functions": 5,
+      "procedures": 2
+    },
+    {
+      "name": "SupplyWatcher",
+      "header": "SupplyWatcher.h",
+      "file": "supply-watcher.ts",
+      "functions": 0,
+      "procedures": 0
+    },
+    {
+      "name": "TestExampleC",
+      "header": "TestExampleC.h",
+      "file": "test-example-c.ts",
+      "functions": 2,
+      "procedures": 4
+    },
+    {
+      "name": "QBond",
+      "header": "QBond.h",
+      "file": "qbond.ts",
+      "functions": 8,
+      "procedures": 8
+    },
+    {
+      "name": "Qx",
+      "header": "Qx.h",
+      "file": "qx.ts",
+      "functions": 5,
+      "procedures": 7
+    },
+    {
+      "name": "Qearn",
+      "header": "Qearn.h",
+      "file": "qearn.ts",
+      "functions": 8,
+      "procedures": 2
+    },
+    {
+      "name": "TestExampleD",
+      "header": "TestExampleD.h",
+      "file": "test-example-d.ts",
+      "functions": 0,
+      "procedures": 0
+    },
+    {
+      "name": "math_lib",
+      "header": "math_lib.h",
+      "file": "math-lib.ts",
+      "functions": 0,
+      "procedures": 0
+    },
+    {
+      "name": "QVAULT",
+      "header": "QVAULT.h",
+      "file": "qvault.ts",
+      "functions": 1,
+      "procedures": 12
+    },
+    {
+      "name": "Nostromo",
+      "header": "Nostromo.h",
+      "file": "nostromo.ts",
+      "functions": 10,
+      "procedures": 9
+    },
+    {
+      "name": "MsVault",
+      "header": "MsVault.h",
+      "file": "ms-vault.ts",
+      "functions": 16,
+      "procedures": 9
+    },
+    {
+      "name": "QIP",
+      "header": "QIP.h",
+      "file": "qip.ts",
+      "functions": 1,
+      "procedures": 3
+    }
+  ]
+}
