@@ -1,0 +1,43 @@
+---
+title: Automation & Telemetry
+description: Emit structured events from the automation runtime.
+---
+
+# Automation & telemetry
+
+`createQubiQSdk` already wires the automation runtime, but you can tap into the callbacks with a custom `AutomationEventBus`.
+
+```ts
+import {
+  ConsoleAutomationEventBus,
+  WebhookAutomationEventBus,
+  createQubiQSdk,
+} from "@qubiq/sdk";
+
+const sdk = await createQubiQSdk({
+  walletConfig: { seed: process.env.QUBIQ_SEED },
+  automation: {
+    profile: "mainnet",
+    autoStart: true,
+    runtimeOptions: {
+      onBalanceSnapshot: (snapshots) => console.log("snapshots", snapshots.length),
+    },
+    eventBus: new WebhookAutomationEventBus({ endpoint: "https://hooks.example.com/qubic" }),
+  },
+});
+```
+
+The bus receives four event types:
+
+- `balance.snapshot` – array of watched identities + balances.
+- `balance.change` – per-identity delta (useful for alerts).
+- `proposals.update` – fresh CCF listing per poll.
+- `tick.sample` – sampling data for Prometheus/Grafana.
+
+Implement the `AutomationEventBus` interface to forward events to Redis, Kafka, or any other destination.
+
+When using the config loader, set `"automation.eventBus": { "type": "webhook", ... }` to instantiate the correct bus automatically.
+
+### Custom instrumentation
+
+`runtimeOptions` accepts the same callbacks as `createAutomationRuntime` (for example `onTickSample`, `onProposals`). Attach logging, metrics, or tracing there and keep the event bus focused on cross-service communication.

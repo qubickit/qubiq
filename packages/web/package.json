@@ -1,35 +1,16 @@
 {
-  "name": "@nexakit/web",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@qubiq/web",
+  "version": "0.0.0",
+  "description": "Shared React components, hooks, and utilities for QubiQ web clients (coming soon).",
+  "type": "module",
+  "private": false,
+  "exports": {},
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "start": "next start",
-    "types:check": "fumadocs-mdx && tsc --noEmit",
-    "postinstall": "fumadocs-mdx",
-    "lint": "biome check",
-    "format": "biome format --write"
+    "build": "echo 'web component package build pending'",
+    "lint": "echo 'web package lint pending'",
+    "test": "echo 'web package tests pending'"
   },
   "dependencies": {
-    "@appletosolutions/reactbits": "^1.0.3",
-    "fumadocs-core": "16.0.14",
-    "fumadocs-mdx": "14.0.2",
-    "fumadocs-ui": "16.0.14",
-    "lucide-react": "^0.552.0",
-    "next": "16.0.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.5",
-    "@tailwindcss/postcss": "^4.1.16",
-    "@types/mdx": "^2.0.13",
-    "@types/node": "^24.10.0",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.16",
-    "typescript": "^5.9.3"
+    "@qubiq/core": "workspace:*"
   }
 }

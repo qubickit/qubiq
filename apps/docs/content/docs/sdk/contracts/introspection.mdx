@@ -1,0 +1,18 @@
+---
+title: Contract Introspection
+description: Analyze available functions and procedures.
+---
+
+# Contract introspection
+
+`createContractToolkit().list()` returns every contract definition extracted from Qubic's headers.
+
+```ts
+const toolkit = createContractToolkit();
+const definitions = toolkit.list();
+definitions.forEach((definition) => {
+  console.log(definition.name, definition.functions.map((fn) => fn.name));
+});
+```
+
+Use the metadata to build documentation, auto-generate forms, or drive IDE completion. Each function includes the struct names for inputs/outputs, so you can feed them into `encodeStruct` or `decodeStruct` automatically.

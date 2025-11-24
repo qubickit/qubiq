@@ -1,0 +1,64 @@
+---
+title: SDK Configuration
+description: Load strongly-typed SDK configs from JSON files with environment substitutions.
+---
+
+# Configuration helpers
+
+`@qubiq/sdk` ships a config loader so you can describe wallets, clients, and automation profiles in JSON instead of wiring everything manually.
+
+## qubiq.config.json
+
+```json
+{
+  "wallet": {
+    "seed": "${ENV:QUBIQ_SEED}",
+    "hdPath": "m/44'/609'/0'/0/0",
+    "minTickOffset": 5,
+    "maxTickOffset": 90
+  },
+  "client": {
+    "liveBaseUrl": "https://api.qubic.org"
+  },
+  "automation": {
+    "profile": "mainnet",
+    "autoStart": true,
+    "eventBus": {
+      "type": "webhook",
+      "endpoint": "${ENV:AUTOMATION_ENDPOINT}",
+      "headers": {
+        "x-api-key": "${ENV:AUTOMATION_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+- `${ENV:VAR_NAME}` tokens are replaced at load time.
+- `eventBus.type` supports `console` or `webhook`.
+- `automation` can be set to `false` to disable automation entirely.
+
+## Loading the file
+
+```ts
+import { createQubiQSdk, loadQubiQSdkConfig } from "@qubiq/sdk";
+
+const sdk = await createQubiQSdk(
+  await loadQubiQSdkConfig("./qubiq.config.json")
+);
+```
+
+`loadQubiQSdkConfig` returns a ready-to-use `QubiQSdkOptions` object. Use `resolveSdkConfig` when you already have the parsed JSON but still want placeholder resolution and event-bus instantiation.
+
+## Overrides & env injection
+
+```ts
+const options = await loadQubiQSdkConfig("./qubiq.config.json", {
+  env: { QUBIQ_SEED: process.env.QUBIQ_SEED },
+  overrides: {
+    client: { liveBaseUrl: "https://staging.qubic.org" }
+  },
+});
+```
+
+Providing `env` lets you control which environment variables are exposed (helpful in unit tests). `overrides` merges partial values on top of the file contents, so you can tweak URLs or automation behavior per environment without duplicating JSON files.

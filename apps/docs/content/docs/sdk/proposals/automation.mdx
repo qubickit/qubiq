@@ -1,0 +1,21 @@
+---
+title: Automation Hooks
+description: React to proposal updates in real time.
+---
+
+# Automation hooks
+
+Pair the proposal toolkit with the automation event bus to trigger scripts when proposals change status.
+
+```ts
+const proposals = createProposalToolkit(liveClient);
+
+runtimeOptions: {
+  onProposals: async (result) => {
+    const summaries = proposals.summarize(result.proposals);
+    await sendWebhook({ summaries });
+  },
+}
+```
+
+This pattern avoids refetching CCF data inside your handler; the automation runtime already provides the latest result.

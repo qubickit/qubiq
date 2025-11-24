@@ -1,0 +1,29 @@
+---
+title: Monitoring Transfers
+description: Track broadcast status and ticks for observability.
+---
+
+# Monitoring transfers
+
+Combine the automation event bus with transfer helpers to emit alerts when transfers are delayed.
+
+## Prometheus metrics
+
+```ts
+await sendTransfer(wallet, liveClient, request, guardrails);
+metrics.transfer_total.inc({ destination: request.destination });
+```
+
+Record latency per transfer (signing time + broadcast response) and export it via the metrics registry described in the core docs.
+
+## Tick drift checks
+
+```ts
+const { tickInfo } = await liveClient.getTickInfo();
+const tick = await prepareSignedTransfer(wallet, liveClient, request, guardrails);
+if (tick.tick - (tickInfo.tick ?? 0) > guardrails.maxTickOffset) {
+  console.warn("tick drift", { tick: tick.tick, latest: tickInfo.tick });
+}
+```
+
+The guardrail ensures signatures stay within the allowed offset, but adding an external check helps you detect stuck nodes or slow pipelines.

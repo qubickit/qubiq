@@ -1,0 +1,79 @@
+---
+title: HTTP Clients
+description: Strongly typed Live, Query, and Archive clients for Qubic’s public REST APIs.
+---
+
+The `@qubiq/core/clients` entry point exposes three production-ready HTTP clients that match Qubic’s swagger specs. All of them extend the same `BaseHttpClient`, so you get consistent telemetry hooks, retries, and Zod validation with zero extra work.
+
+## LiveServiceClient
+
+```ts
+import { LiveServiceClient } from "@qubiq/core";
+
+const live = new LiveServiceClient({ baseUrl: "https://api.qubic.org" });
+const { tickInfo } = await live.getTickInfo();
+const balance = await live.getBalance("SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK");
+await live.broadcastTransaction({ encodedTransaction: "base64Tx==" });
+```
+
+<details>
+  <summary>Endpoints covered</summary>
+
+- `/v1/tick-info`
+- `/v1/accounts/{identity}`
+- `/v1/broadcast-transaction`
+- `/v1/query-smart-contract`
+- `/v1/assets/*`, `/v1/stats/*` (mirrors the consolidated swagger specs)
+
+</details>
+
+## QueryServiceClient
+
+```ts
+import { QueryServiceClient } from "@qubiq/core";
+
+const query = new QueryServiceClient({ baseUrl: "https://query.qubic.org" });
+const lastTick = await query.getLastProcessedTick();
+const txs = await query.getTransactionsByIdentity({ identity: "SUZ...", limit: 20 });
+const tickData = await query.getTickData({ tickNumber: lastTick.tickNumber });
+```
+
+- Paginates automatically (`page`, `limit`, `pageSize` helpers).
+- Validates hashes/identities via `HashStringSchema` + `IdentityStringSchema`.
+- Useful for historical explorers, compliance dashboards, or caching layers.
+
+## ArchiveClient
+
+```ts
+import { ArchiveClient } from "@qubiq/core";
+
+const archive = new ArchiveClient({ baseUrl: "https://archive.qubic.org" });
+const transaction = await archive.getTransaction("kthxbye...");
+const transfers = await archive.getIdentityTransfers("SUZ...", { range: { from: 180, to: 182 } });
+```
+
+<details>
+  <summary>When to pick ArchiveClient</summary>
+
+- You need canonical transfer history with ticks/timestamps.
+- You want to reconcile wallet balances vs. real transfers.
+- You need `identityTransfers`, `transactionStatus`, or deep inspection endpoints not exposed in the live/query APIs.
+
+</details>
+
+## Base client features
+
+- Zod schemas (`src/types/rpc.ts`) guarantee runtime validation.
+- Automatic JSON parsing + helpful errors (status code, body snippet) via `HttpError`.
+- Inject a custom `fetch` implementation or headers for auth proxies.
+- Telemetry hook: pass `onRequest`/`onResponse` to record metrics or trace IDs.
+
+```ts
+const live = new LiveServiceClient({
+  baseUrl: "https://api.qubic.org",
+  onRequest: (ctx) => metrics.http.startTimer(ctx),
+  onResponse: (ctx) => metrics.http.stopTimer(ctx),
+});
+```
+
+Pair the HTTP clients with automation pipelines, wallet watchers, or the gRPC layer depending on your latency and transport needs.

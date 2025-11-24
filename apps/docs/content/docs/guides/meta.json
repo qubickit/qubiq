@@ -1,0 +1,11 @@
+{
+  "title": "Guides",
+  "icon": "BookOpen",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "wallet-service",
+    "automation-pipeline",
+    "governance-dashboard"
+  ]
+}

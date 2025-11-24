@@ -1,0 +1,68 @@
+---
+title: Contract Toolkit
+description: Encode structs, build payloads, and call smart contracts without manual byte math.
+---
+
+# Contract toolkit
+
+The contract helpers read the generated metadata from `@qubiq/core/src/contracts/generated`. You can encode payloads or execute contract calls with a few lines of code.
+
+## encodeStruct / decodeStruct
+
+```ts
+import { encodeStruct, decodeStruct } from "@qubiq/sdk";
+
+const payload = encodeStruct("ComputorControlledFund_GetProposal_input", {
+  proposalIndex: 1,
+});
+```
+
+Use `decodeStruct` when you have raw bytes (for example from `querySmartContract`).
+
+## createContractToolkit
+
+```ts
+import { createContractToolkit } from "@qubiq/sdk";
+
+const toolkit = createContractToolkit({ client: liveClient });
+const ccf = toolkit.use("ComputorControlledFund");
+
+const { decoded } = await ccf.functions.GetProposal.call({ proposalIndex: 42 });
+```
+
+Every function/procedure binding exposes:
+
+- `encode(value)` – returns the encoded payload for offline usage.
+- `decode(bytes)` – parses the raw response.
+- `buildCall(value)` – creates `{ contractIndex, inputType, payload }` so you can plug into custom transports.
+- `call(value)` – executes `liveClient.querySmartContract`, decodes the Base64 response, and returns `{ raw, decoded }`.
+
+Override `contractIndex` per call when you target custom deployments.
+
+### Listing contracts
+
+```ts
+const definitions = toolkit.list();
+definitions.forEach((definition) => {
+  console.log(definition.name, definition.functions.length);
+});
+```
+
+`definition(name)` returns the raw metadata (`functions`, `procedures`, header name) so you can build documentation or debugging tools around it.
+
+### Build-only mode
+
+Don't have a `LiveServiceClient`? Skip the `client` option and the toolkit will still produce encoders/decoders:
+
+```ts
+const offlineToolkit = createContractToolkit();
+const { payload } = offlineToolkit
+  .use("ComputorControlledFund")
+  .functions.SetProposal.buildCall({ /* ... */ });
+
+await customTransport.send(payload);
+```
+
+### Deeply nested structs
+
+`encodeStruct` understands nested structs and fixed-length arrays because it reads the generated layouts directly. When dealing with array fields, make sure the number of elements does not exceed the `length` defined in the C++ contract; the helper will throw if it does, matching the native behavior.

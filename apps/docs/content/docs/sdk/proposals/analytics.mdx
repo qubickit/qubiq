@@ -1,0 +1,19 @@
+---
+title: Analytics
+description: Building dashboards with proposal data.
+---
+
+# Analytics
+
+Combine `fetchCcf` with your favorite database or dashboard to keep track of funding requests.
+
+```ts
+const result = await proposals.fetchCcf();
+await db.insert("proposals", result.proposals.map((proposal) => ({
+  index: proposal.index,
+  epoch: proposal.data.epoch,
+  description: proposal.data.description,
+})));
+```
+
+You now have historical data to build charts on voting volume, transfer destinations, or funding trends. Pair this with FeatureBase or any other feedback system to let the community comment on proposals directly from your dashboards.

@@ -1,0 +1,9 @@
+{
+  "title": "Wallets",
+  "icon": "Shield",
+  "pages": [
+    "index",
+    "hd-paths",
+    "secrets"
+  ]
+}

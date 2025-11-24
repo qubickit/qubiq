@@ -1,0 +1,37 @@
+---
+title: HD Path Recipes
+description: Common derivation schemes for QubiQ wallets.
+---
+
+# HD path recipes
+
+`resolveWallet` and `createWalletTools` accept any HD path because they reuse the FourQ derivation logic from `@qubiq/core`. Below are a few patterns you can adapt:
+
+## App-specific accounts
+
+```ts
+await resolveWallet({
+  seed: process.env.QUBIQ_SEED,
+  hdPath: "m/44'/609'/0'/0/0",
+});
+```
+
+Use the final index (`.../0`) to represent different apps or services. Keep a naming scheme documented so you can reproduce wallets later.
+
+## Custody rotation
+
+```ts
+const rotationPath = `m/44'/609'/${rotationIndex}'/0/0`;
+const wallet = await resolveWallet({ seed, hdPath: rotationPath });
+```
+
+Increment `rotationIndex` whenever you rotate custody or issue new payouts.
+
+## Derived wallets via WalletTools
+
+```ts
+const tools = createWalletTools(await resolveWallet({ seed }));
+const hotWallet = await tools?.derivePath("m/44'/609'/0'/1/0");
+```
+
+`derivePath` is useful when you need to keep the root seed in memory but still issue short-lived wallets for automation workers.

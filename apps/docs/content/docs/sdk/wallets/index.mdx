@@ -1,0 +1,69 @@
+---
+title: Wallet Tooling
+description: Securely resolve wallets, guardrails, and seed storage with the SDK helpers.
+---
+
+# Wallet tooling
+
+`@qubiq/sdk/wallet` (and the root package) exports utilities that wrap the HD derivation + AES-GCM flow from `@qubiq/core`.
+
+## resolveWallet
+
+```ts
+import { resolveWallet } from "@qubiq/sdk";
+
+const resolution = await resolveWallet({
+  seed: process.env.QUBIQ_SEED,
+  hdPath: "m/44'/609'/0'/0/0",
+  minTickOffset: 5,
+  maxTickOffset: 90,
+});
+```
+
+`resolveWallet` understands:
+
+- `seed` – plaintext seed (optional when `encryptedSeed` + `passphrase` provided).
+- `encryptedSeed` + `passphrase` – AES-GCM payload created via `encryptWalletSeed`.
+- `hdPath` – optional path that drives `deriveWalletFromPath`.
+- `minTickOffset`/`maxTickOffset` – defaults to `5` and `120`, used to clamp auto-generated ticks.
+
+It returns `{ wallet, guardrails, seed? }`, which you can pass to transfer helpers or build new HD paths.
+
+When using `loadQubiQSdkConfig`, any `${ENV:QUBIQ_SEED}` token inside the `wallet` object automatically flows through `resolveWallet`, so you can store the secret outside the JSON file.
+
+## WalletTools
+
+Calling `createWalletTools(resolution)` returns helpers when the plaintext seed is available:
+
+```ts
+const tools = createWalletTools(resolution);
+const encrypted = tools?.encrypt(resolution.seed!, "vault-password");
+const derivedWallet = await tools?.derivePath("m/44'/609'/0'/1/0");
+```
+
+Use `encryptWalletSeed` / `decryptWalletSeed` directly when you do not need full wallet resolution.
+
+### Encrypting seeds for storage
+
+```ts
+import { encryptWalletSeed, decryptWalletSeed } from "@qubiq/sdk";
+
+const payload = encryptWalletSeed(process.env.QUBIQ_SEED!, "vault-password");
+await fs.writeFile("./secrets/qubic.json", JSON.stringify(payload));
+
+const seed = decryptWalletSeed(payload, "vault-password");
+```
+
+The payload uses PBKDF2 + AES-GCM with a random salt and IV, so you can safely stash it alongside other application secrets.
+
+## Guardrails
+
+`extractGuardrails` normalizes tick offsets to ensure they remain within the allowed range. Reuse the same guardrail object when calling `prepareSignedTransfer`, automation jobs, or queue workers so every module enforces consistent limits.
+
+```ts
+const { guardrails } = await resolveWallet({ seed: process.env.QUBIQ_SEED });
+
+await sendTransfer(wallet, liveClient, payload, guardrails);
+```
+
+The defaults (`minTickOffset = 5`, `maxTickOffset = 120`) match the core client, and the SDK exports `DEFAULT_MIN_TICK_OFFSET`, `DEFAULT_MAX_TICK_OFFSET`, and `DEFAULT_TICK_OFFSET` if you want to surface them in your own config files.

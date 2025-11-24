@@ -1,0 +1,47 @@
+---
+title: SDK Overview
+description: Learn what ships with @qubiq/sdk v1.0.0 and how it layers on top of @qubiq/core.
+---
+
+# QubiQ SDK
+
+The SDK bundles high-level building blocks on top of `@qubiq/core` so dApp teams do not need to wire low-level payloads or tick math. At a glance it provides:
+
+- Wallet orchestration with guardrails, AES-GCM storage helpers, and HD derivation.
+- Transfer helpers that accept any `Wallet` + `LiveServiceClient` pair.
+- A contract toolkit that reads the generated struct metadata and builds encoded payloads + query helpers.
+- A proposal toolkit focused on the CCF contract for governance dashboards.
+- Automation utilities (event bus + runtime wiring) that integrate with the core polling jobs.
+
+> All functionality is exported from the package root, so you can either call `createQubiQSdk` for a batteries-included experience or cherry-pick the helpers you need for a CLI, service worker, or UI application.
+
+```ts
+import {
+  resolveWallet,
+  prepareSignedTransfer,
+  sendTransfer,
+  loadQubiQSdkConfig,
+  createContractToolkit,
+  createProposalToolkit,
+} from "@qubiq/sdk";
+
+const walletResolution = await resolveWallet({ seed: process.env.QUBIQ_SEED });
+const liveClient = sdk.clients.live;
+
+await sendTransfer(walletResolution.wallet, liveClient, {
+  destination: "SUZ...",
+  amount: 125_000n,
+});
+
+const contractToolkit = createContractToolkit({ client: liveClient });
+const ccf = contractToolkit.use("ComputorControlledFund");
+const { decoded } = await ccf.functions.GetProposal.call({ proposalIndex: 1 });
+
+const sdk = await createQubiQSdk(
+  await loadQubiQSdkConfig("./qubiq.config.json")
+);
+```
+
+Need declarative setup? The configuration helpers understand `${ENV:VAR}` placeholders, instantiate webhooks, and merge overrides, so you can describe the entire runtime in JSON and feed it directly into `createQubiQSdk`.
+
+Each module below dives deeper into the API surface.

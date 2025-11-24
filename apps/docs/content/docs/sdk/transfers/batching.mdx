@@ -1,0 +1,29 @@
+---
+title: Batching Strategies
+description: Coordinate multiple transfers safely.
+---
+
+# Batching strategies
+
+`sendTransferBatch` executes transfers sequentially. Combine it with queues, retries, and guardrails to handle mass payouts.
+
+## Idempotent batches
+
+```ts
+const responses = await sendTransferBatch(wallet, liveClient, jobs, guardrails);
+responses.forEach((response, index) => {
+  console.log(jobs[index], response.status);
+});
+```
+
+Wrap each batch in a job ID and log the response so you can re-run the batch if a worker crashes.
+
+## Retry on throttling
+
+```ts
+for (const job of jobs) {
+  await retry(async () => sendTransfer(wallet, liveClient, job, guardrails));
+}
+```
+
+Use exponential backoff when the live service responds with `429` or `503`. Because each transfer is signed individually, retries are safe as long as you handle duplicates on the receiving side.
