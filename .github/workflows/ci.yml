@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  lint-test:
+  core:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +15,35 @@ jobs:
           bun-version: "1.3.2"
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Lint
-        run: bun run lint
-      - name: Test
-        run: bun test
+      - name: Lint core
+        run: bun run --cwd packages/core lint
+      - name: Test core
+        run: bun run --cwd packages/core test
+
+  sdk:
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.2"
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Lint SDK
+        run: bun run --cwd packages/sdk lint
+      - name: Test SDK
+        run: bun run --cwd packages/sdk test
+
+  docs:
+    runs-on: ubuntu-latest
+    needs: [core, sdk]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.2"
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Check docs types & mdx
+        run: bun run --cwd apps/docs types:check
