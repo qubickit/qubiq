@@ -1,5 +1,5 @@
 {
-  "name": "@nexakit/core",
+  "name": "@qubiq/core",
   "version": "1.0.0",
   "description": "TypeScript SDK for interacting with Qubic nodes via Bun/Node runtimes.",
   "keywords": [
@@ -11,12 +11,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/nexakit/core.git"
+    "url": "https://github.com/qubiq/core.git"
   },
   "bugs": {
-    "url": "https://github.com/nexakit/core/issues"
+    "url": "https://github.com/qubiq/core/issues"
   },
-  "homepage": "https://github.com/nexakit/core#readme",
+  "homepage": "https://github.com/qubiq/core#readme",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

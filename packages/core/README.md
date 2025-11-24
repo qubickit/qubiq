@@ -1,23 +1,23 @@
-# NexaKit Core
+# QubiQ Core
 
-`@nexakit/core` is the TypeScript toolkit that mirrors the Qubic node lifecycle—deterministic wallets (FourQ/K12 WASM), HTTP clients, automation pipelines, proposal tooling, and observability helpers.
+`@qubiq/core` is the TypeScript toolkit that mirrors the Qubic node lifecycle—deterministic wallets (FourQ/K12 WASM), HTTP clients, automation pipelines, proposal tooling, and observability helpers.
 
 ## Where to start
 
 | Resource    | URL                                          | Notes                                                            |
 | ----------- | -------------------------------------------- | ---------------------------------------------------------------- |
-| Docs site   | https://core.nexakit.dev                     | Primary reference (Getting Started, modules, interop, telemetry) |
-| API package | https://www.npmjs.com/package/@nexakit/core | Install in Bun/Node projects                                     |
+| Docs site   | https://core.qubiq.dev                     | Primary reference (Getting Started, modules, interop, telemetry) |
+| API package | https://www.npmjs.com/package/@qubiq/core | Install in Bun/Node projects                                     |
 | Examples    | `examples/`                                  | Runnable scripts mirrored in the docs                            |
 
 ## Quickstart
 
 ```bash
-bun add @nexakit/core
+bun add @qubiq/core
 ```
 
 ```ts
-import { QubicNodeClient, deriveWalletFromSeed } from "@nexakit/core";
+import { QubicNodeClient, deriveWalletFromSeed } from "@qubiq/core";
 
 const client = new QubicNodeClient();
 const wallet = await deriveWalletFromSeed(process.env.QUBIC_SEED!);
@@ -38,15 +38,15 @@ More scenarios—automation pipelines, proposal workflows, observability—are d
 
 ## Local development
 
-### Docs app (`packages/web`)
+### Docs app (`apps/docs`)
 
 ```bash
-cd ../web
+cd ../../apps/docs
 bun install
-bun dev  # serves https://core.nexakit.dev locally
+bun dev  # serves https://core.qubiq.dev locally
 ```
 
-The site uses Fumadocs + Next.js App Router. Content lives under `packages/web/content/docs`.
+The site uses Fumadocs + Next.js App Router. Content lives under `apps/docs/content/docs`.
 
 ### Core package
 
@@ -67,7 +67,7 @@ CI mirrors this command. Integration tests rely on local mock servers (no public
 | `proto/`    | Canonical `live_service.proto` used by both HTTP and gRPC layers                                     |
 | `tests/`    | Bun test suites (unit, integration, automation, interop, smoke)                                      |
 | `examples/` | Runnable scripts referenced by the docs                                                              |
-| `../web/`   | Next.js/Fumadocs site served at https://core.nexakit.dev                                             |
+| `../web/`   | Next.js/Fumadocs site served at https://core.qubiq.dev                                             |
 
 ## Contributing
 

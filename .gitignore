@@ -38,6 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 /audit
 # Next.js build artifacts
 .next
-packages/web/.next
+apps/docs/.next
 /temp
 packages/core/temp

@@ -1,14 +1,14 @@
 {
-  "name": "nexakit",
+  "name": "qubiq",
   "private": true,
   "version": "1.0.0",
-  "workspaces": ["packages/*"],
+  "workspaces": ["packages/*", "apps/*"],
   "scripts": {
     "lint": "bun run --cwd packages/core lint",
     "test": "bun run --cwd packages/core test",
     "build": "bun run --cwd packages/core build",
     "format": "bun run --cwd packages/core format",
-    "dev:web": "bun run --cwd packages/web dev",
-    "build:web": "bun run --cwd packages/web build"
+    "dev:docs": "bun run --cwd apps/docs dev",
+    "build:docs": "bun run --cwd apps/docs build"
   }
 }
