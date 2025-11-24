@@ -5,9 +5,12 @@ import { getPageImage, source } from "@/lib/source";
 
 export const revalidate = false;
 
-function resolveSlug(slug: string[] | undefined) {
+function resolveSlug(slug: string | string[] | undefined) {
   if (Array.isArray(slug) && slug.length > 0) {
     return slug;
+  }
+  if (typeof slug === "string" && slug.length > 0) {
+    return [slug];
   }
   return ["index"];
 }
