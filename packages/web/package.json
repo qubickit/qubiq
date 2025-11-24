@@ -1,0 +1,16 @@
+{
+  "name": "@qubiq/web",
+  "version": "0.0.0",
+  "description": "Shared React components, hooks, and utilities for QubiQ web clients (coming soon).",
+  "type": "module",
+  "private": false,
+  "exports": {},
+  "scripts": {
+    "build": "echo 'web component package build pending'",
+    "lint": "echo 'web package lint pending'",
+    "test": "echo 'web package tests pending'"
+  },
+  "dependencies": {
+    "@qubiq/core": "workspace:*"
+  }
+}

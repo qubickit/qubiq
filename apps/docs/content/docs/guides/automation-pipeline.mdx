@@ -1,0 +1,68 @@
+---
+title: Automation Pipeline Guide
+description: Instrument live nodes with balance snapshots, tick monitors, and Prometheus exports.
+---
+
+# Automation pipeline
+
+This guide focuses on observability + automation. You will:
+
+1. Bootstrap the automation runtime with custom runtime options.
+2. Stream telemetry to Prometheus.
+3. Trigger webhooks whenever balances change or proposals update.
+
+## 1. Runtime bootstrap
+
+```ts
+import { createAutomationRuntime } from "@qubiq/core";
+import { LiveServiceClient } from "@qubiq/core";
+
+const live = new LiveServiceClient({ baseUrl: "https://api.qubic.org" });
+const runtime = createAutomationRuntime("mainnet", {
+  client: live,
+  onBalanceSnapshot: (snapshots) => console.log("snapshot", snapshots.length),
+});
+await runtime.start();
+```
+
+Prefer the SDK? Pass `automation` options to `createQubiQSdk` and reuse `sdk.clients.live`.
+
+## 2. Prometheus metrics
+
+```ts
+import { PrometheusMetricsServer, TelemetryMetricsRegistry } from "@qubiq/core/monitoring";
+
+const registry = new TelemetryMetricsRegistry();
+const server = new PrometheusMetricsServer({ registry, port: 9464 });
+await server.start();
+
+runtimeOptions: {
+  onTickSample: (sample) => registry.observeTick(sample),
+  onBalanceChange: (change) => registry.observeBalance(change),
+}
+```
+
+Expose `/metrics` to your Grafana stack and add alerts when `deltaMs` spikes.
+
+## 3. Webhook fan-out
+
+```ts
+import { WebhookAutomationEventBus, createQubiQSdk } from "@qubiq/sdk";
+
+await createQubiQSdk({
+  walletConfig: { seed: process.env.QUBIQ_SEED },
+  automation: {
+    profile: "mainnet",
+    autoStart: true,
+    eventBus: new WebhookAutomationEventBus({ endpoint: process.env.TELEMETRY_HOOK! }),
+  },
+});
+```
+
+Every automation event includes timestamps so downstream services can correlate them with Prometheus samples.
+
+## 4. Alerting
+
+- Use `instrumentRequest` to wrap live-service calls and emit success/failure counters.
+- Combine Prometheus alerts with chatops (Slack, Discord) for balance changes that exceed thresholds.
+- Use the [event-bus patterns](/sdk/automation/event-bus) page to push events into Redis or Kafka if you need stronger delivery guarantees.

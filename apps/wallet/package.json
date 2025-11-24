@@ -1,0 +1,14 @@
+{
+  "name": "@qubiq/next-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Starter Next.js dApp built on top of the QubiQ toolkit (placeholder).",
+  "scripts": {
+    "dev": "echo 'Next.js app not implemented yet'",
+    "build": "echo 'Next.js build pending'",
+    "lint": "echo 'Next.js lint pending'"
+  },
+  "dependencies": {
+    "@qubiq/core": "workspace:*"
+  }
+}

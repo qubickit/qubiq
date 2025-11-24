@@ -1,0 +1,23 @@
+---
+title: Runtime Options
+description: Customize polling intervals and handlers.
+---
+
+# Runtime options
+
+`automation.runtimeOptions` mirrors the `createAutomationRuntime` callbacks. Use it to plug into balance snapshots, proposal updates, and tick samples without writing a custom event bus.
+
+```ts
+const sdk = await createQubiQSdk({
+  walletConfig: { seed: process.env.QUBIQ_SEED },
+  automation: {
+    profile: "mainnet",
+    runtimeOptions: {
+      onTickSample: (sample) => console.log("tick", sample.tick, sample.deltaMs),
+      onBalanceChange: (event) => alert(event.identity),
+    },
+  },
+});
+```
+
+Set `autoStart` to `false` if you want to control when the runtime begins polling. Call `sdk.automation?.start()` manually once your dependencies (databases, queues) are ready.

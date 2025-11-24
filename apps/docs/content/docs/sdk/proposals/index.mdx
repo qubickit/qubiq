@@ -1,0 +1,40 @@
+---
+title: Proposal Toolkit
+description: Fetch and summarize Computor Controlled Fund proposals through the SDK.
+---
+
+# Proposal toolkit
+
+`createProposalToolkit` wraps the CCF-specific helper from `@qubiq/core` and exposes filtered results.
+
+```ts
+import { createProposalToolkit } from "@qubiq/sdk";
+
+const proposals = createProposalToolkit(liveClient);
+const active = await proposals.listActive({ epoch: 190, limit: 5 });
+
+console.log(proposals.summarize(active));
+```
+
+Available methods:
+
+- `fetchCcf({ epoch, status })` – returns the raw `CcfProposalFetchResult` (active indices, finished indices, epoch metadata).
+- `listActive({ epoch, limit })` – filters to currently active proposals.
+- `listFinished({ epoch, limit })` – finished proposals.
+- `describe(proposal)` – human readable `#index [status] ...` string.
+- `summarize(list, { limit })` – map helper for dashboards or logs.
+
+Use the toolkit when building governance dashboards or automation that needs to trigger jobs whenever a proposal changes state.
+
+### Fetching finished proposals
+
+```ts
+const result = await proposals.fetchCcf({ status: "finished" });
+result.proposals.forEach((proposal) => {
+  console.log(proposals.describe(proposal));
+});
+```
+
+The raw result includes `activeIndices`, `finishedIndices`, and `networkEpoch`, so you can correlate proposals with off-chain voting summaries or feed them into analytics.
+
+Pair it with the automation event bus (`proposals.update` events) to cache the latest state without polling the API from every service.

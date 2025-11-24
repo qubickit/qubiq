@@ -1,0 +1,59 @@
+---
+title: Contract Metadata & Codec
+description: Use the generated contract layouts and regenerate them when Qubic headers change.
+---
+
+# Contract metadata & codec
+
+`@qubiq/core` vendors the generated metadata for every public Qubic contract under `src/contracts/generated`. Each file mirrors the upstream header (for example `ComputorControlledFund.h`) and exports TypeScript types + layouts.
+
+## CONTRACT_DEFINITIONS
+
+```ts
+import { CONTRACT_DEFINITIONS } from "@qubiq/core/contracts/generated/contracts.generated";
+
+const ccf = CONTRACT_DEFINITIONS.find((definition) => definition.name === "ComputorControlledFund");
+console.log(ccf?.functions.map((fn) => fn.name));
+```
+
+Use this array (or the accompanying `CONTRACT_DEFINITION_MAP`) to discover function IDs, procedure IDs, and the structs required to encode payloads.
+
+## STRUCT_LAYOUTS + codec
+
+```ts
+import { STRUCT_LAYOUTS } from "@qubiq/core/contracts/generated/contracts.generated";
+import { encodeStruct } from "@qubiq/core/contracts/codec";
+
+const payload = encodeStruct(STRUCT_LAYOUTS.ComputorControlledFund_GetProposal_input, {
+  proposalIndex: 42,
+});
+```
+
+The codec mirrors the C++ layout (little endian, fixed-length arrays, nested structs). Pair it with the SDK contract toolkit when you need to prebuild payloads without pulling in the entire SDK.
+
+## Regenerating metadata
+
+The headers originate from the official `qubic/core` repo. To update them:
+
+1. Fetch the upstream repository into `temp/qubic/core` (per the script expectation).
+2. Run `bun run packages/core/scripts/gen-contract-types.ts` from the repo root.
+3. Inspect `packages/core/src/contracts/generated` for the new `.ts` files and updated `MANIFEST.json`.
+4. Commit the changes (never hand-edit generated files).
+
+The script parses each `struct Foo_input` / `struct Foo_output`, generates TypeScript interfaces, and records the struct layout (`name`, `wireType`, optional nested struct references). It also updates `contracts.generated.ts`, which feeds both the codec and the SDK contract toolkit.
+
+## Custom inspectors
+
+Because the metadata is public API, you can build CLIs or dashboards that introspect contract functions. For example:
+
+```ts
+import { CONTRACT_DEFINITIONS } from "@qubiq/core/contracts/generated/contracts.generated";
+
+const report = CONTRACT_DEFINITIONS.map((definition) => ({
+  name: definition.name,
+  functions: definition.functions.length,
+  procedures: definition.procedures.length,
+}));
+```
+
+Use this to flag changes between upstream releases, surface contract lists inside your SDK, or auto-generate documentation.

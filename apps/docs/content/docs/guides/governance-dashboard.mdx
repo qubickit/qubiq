@@ -1,0 +1,55 @@
+---
+title: Governance Dashboard Guide
+description: Build a proposal tracker powered by the CCF contract.
+---
+
+# Governance dashboard
+
+Bring live proposals into your UI with the proposal toolkit.
+
+## 1. Fetch proposals
+
+```ts
+import { createProposalToolkit } from "@qubiq/sdk";
+import { LiveServiceClient } from "@qubiq/core";
+
+const toolkit = createProposalToolkit(
+  new LiveServiceClient({ baseUrl: "https://api.qubic.org" })
+);
+const active = await toolkit.listActive({ limit: 20 });
+```
+
+Render cards using `toolkit.describe(proposal)` or custom templates.
+
+## 2. Historical data
+
+```ts
+const result = await toolkit.fetchCcf({ status: "all" });
+await db.insert("proposals", result.proposals.map((proposal) => ({
+  index: proposal.index,
+  epoch: proposal.data.epoch,
+  description: proposal.data.description,
+  amount: proposal.data.transferOptions?.amount ?? 0n,
+})));
+```
+
+Store the `activeIndices` / `finishedIndices` arrays so you can show status badges without recomputing.
+
+## 3. Automation integration
+
+Hook into the automation runtime to refresh the dashboard only when proposals change:
+
+```ts
+runtimeOptions: {
+  onProposals: async (result) => {
+    cache.set("proposals", result);
+    websocket.broadcast(toolkit.summarize(result.proposals));
+  },
+}
+```
+
+## 4. Follow-up actions
+
+- Use `sdk.sendTransfer` to automate payouts once a proposal is accepted (after quorum checks).
+- Generate markdown summaries from `toolkit.summarize` and post them to your community channels.
+- Combine with the [analytics guide](/sdk/proposals/analytics) to visualize funding trends across epochs.

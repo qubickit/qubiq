@@ -1,0 +1,23 @@
+---
+title: Event Bus Patterns
+description: Build custom AutomationEventBus adapters.
+---
+
+# Event bus patterns
+
+Implement the `AutomationEventBus` interface when you need to fan out events to multiple systems.
+
+```ts
+class RedisEventBus {
+  constructor(private readonly redis) {}
+  async publish(event) {
+    await this.redis.xAdd("qubic:automation", "*", { event: JSON.stringify(event) });
+  }
+}
+
+const sdk = await createQubiQSdk({
+  automation: { profile: "mainnet", eventBus: new RedisEventBus(redis) },
+});
+```
+
+Make sure your bus handles transient errors gracefully since the automation runtime awaits `publish`. Use retries or dead-letter queues if needed.

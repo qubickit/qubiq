@@ -1,0 +1,14 @@
+{
+  "title": "SDK",
+  "icon": "Package",
+  "defaultOpen": true,
+  "pages": [
+    "overview",
+    "config",
+    "wallets",
+    "transfers",
+    "contracts",
+    "proposals",
+    "automation"
+  ]
+}

@@ -1,5 +1,0 @@
-{
-  "title": "Interop & Clients",
-  "icon": "Globe",
-  "pages": ["index", "clients", "connectors", "node", "serialization", "types", "utils"]
-}

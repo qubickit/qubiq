@@ -1,0 +1,5 @@
+{
+  "title": "Transfers",
+  "icon": "Send",
+  "pages": ["index", "batching", "monitoring"]
+}

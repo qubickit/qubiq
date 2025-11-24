@@ -1,0 +1,53 @@
+---
+title: Developer Experience
+description: How to run @qubiq/core locally, explore examples, and extend the toolkit.
+---
+
+This project is designed to feel great in everyday workflows—Bun for scripts/tests, Fumadocs for docs, and a set of runnable examples that mirror the guides on [core.qubiq.dev](https://core.qubiq.dev).
+
+## Local setup
+
+```bash
+bun install
+bun run lint
+bun test
+```
+
+Use the same commands inside `apps/docs/` to work on the documentation site:
+
+```bash
+cd apps/docs
+bun install
+bun dev
+```
+
+Fumadocs hot-reloads MDX+React, so you can update guides and see the result instantly at `http://localhost:3000`.
+
+## Examples directory
+
+`examples/` mirrors the walkthroughs in the docs. A few highlights:
+
+| Script | Description |
+| --- | --- |
+| `bun run example:watch --identity=SUZ...` | Streams balance changes using `WalletWatcher`. |
+| `bun run example:send <seed> <dst> <amount>` | Derives keys, signs a transfer, and optionally broadcasts via the HTTP client. |
+| `bun run example:automation --profile=mainnet` | Boots the automation runtime with watchers + proposal polling. |
+| `bun run example:proposals` | Uses `ProposalCoordinator` to fetch and format CCF proposals. |
+
+Examples accept `--help` to show flags. Environment variables (`QUBIC_SEED`, `QUBIC_LIVE_URL`, `QUBIC_AUTOMATION_IDENTITIES`) let you run them headlessly in CI or cron jobs.
+
+## Testing & debugging
+
+- `bun test` runs the entire suite (unit + integration). Live smoke tests stay skipped unless `QUBIC_SMOKE_TESTS=true`.
+- `bun test path/to/file.test.ts` focuses on a single area—handy for wallet or interop work.
+- `bun run lint` type-checks + Biome formats everything.
+
+Need a quick gRPC playground? See `tests/interop/grpc-live-service.test.ts` for a fully in-process mock server you can adapt.
+
+## Recommended workflow
+
+1. Start the docs site (`bun dev` in `apps/docs/`).
+2. Keep `bun test --watch` running for tight feedback.
+3. Use `examples/` as scratchpads when building new guides. Once an example is stable, reference it from the docs.
+
+That’s it—the rest of the docs dive into modules like wallets, automation, interop, and monitoring, all available at [core.qubiq.dev](https://core.qubiq.dev).

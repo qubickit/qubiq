@@ -1,0 +1,63 @@
+---
+title: Transfer Helpers
+description: Sign and broadcast Qubic transfers with one function call.
+---
+
+# Transfer helpers
+
+`@qubiq/sdk/transfers` exposes three primitives:
+
+```ts
+import {
+  prepareSignedTransfer,
+  sendTransfer,
+  sendTransferBatch,
+} from "@qubiq/sdk";
+```
+
+All helpers accept a `Wallet`, a `LiveServiceClient` instance, and an optional `GuardrailConfig` produced by `resolveWallet`.
+
+## prepareSignedTransfer
+
+Returns a `SignedTransfer` without broadcasting it. Useful for offline signing or bundling:
+
+```ts
+const signed = await prepareSignedTransfer(wallet, liveClient, {
+  destination: "SUZ...",
+  amount: 1_000_000n,
+  payload: new TextEncoder().encode("memo"),
+  inputType: 1,
+});
+```
+
+Pass `tick` to hardcode the exact tick or `tickOffset` to override the guardrail default. Supplying `payload` lets you embed contract invocations or metadata; when omitted, it defaults to an empty buffer.
+
+## sendTransfer
+
+Signs and immediately broadcasts via `liveClient.broadcastTransaction`. The helper converts bytes to Base64 automatically.
+
+```ts
+await sendTransfer(wallet, liveClient, {
+  destination: "SUZ...",
+  amount: 250_000n,
+});
+```
+
+## sendTransferBatch
+
+Sequentially signs + broadcasts each entry in the array, returning the `BroadcastTransactionResponse[]`. Combine with queues or cron jobs when working through payouts.
+
+```ts
+await sendTransferBatch(wallet, liveClient, [
+  { destination: "SUZ...1", amount: 500_000n },
+  { destination: "SUZ...2", amount: 250_000n, payload: Buffer.from("a1b2", "hex") },
+]);
+```
+
+Each transfer executes sequentially to preserve nonce order and to make retry logic predictable. Wrap the call in a try/catch block to surface partial failures.
+
+## Guardrails & ticks
+
+Tick offsets are computed automatically using the guardrails provided by `resolveWallet`. If you pass `tick` explicitly, the helpers will respect it; otherwise they clamp the offset to `minTickOffset` / `maxTickOffset`. This prevents accidentally signing stale transactions when the live service is under load.
+
+Use the same guardrail object everywhere to ensure automation jobs, batch senders, and interactive scripts all align.

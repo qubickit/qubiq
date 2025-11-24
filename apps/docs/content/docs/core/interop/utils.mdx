@@ -1,0 +1,27 @@
+---
+title: Utilities & Helpers
+description: Small but sharp helpers exported for downstream SDKs.
+---
+
+Most tooling lives in dedicated modules (wallets, automation, proposals), but a few shared utilities sit under `@qubiq/core/utils`. Use them directly instead of rolling your own — they already follow the constraints enforced by the native node.
+
+## Byte helpers
+
+```ts
+import { hexToBytes, bytesToHex, concatBytes } from "@qubiq/core/utils";
+
+const bytes = hexToBytes("ab".repeat(32));
+const hex = bytesToHex(bytes);
+const merged = concatBytes(bytes, bytes);
+```
+
+- Verifies even-length hex strings and throws when invalid.
+- Zero-copy concatenation reduces allocations when building headers or payloads.
+
+## Numeric helpers
+
+While most numeric utilities live inside higher-level modules, we intentionally keep BigInt arithmetic inside helpers like transaction serializers. Reuse them whenever possible to stay consistent with byte-order expectations (`little-endian` for amounts/ticks).
+
+## Re-exports
+
+Many modules (wallet signing, serialization, proposals) re-export these helpers so you rarely import from `@qubiq/core/utils` directly. Still, this module is public API, so don’t hesitate to rely on it for low-level work such as custom contract encoders, CLI inspectors, or hardware wallet adapters.

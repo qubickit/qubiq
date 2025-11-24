@@ -1,0 +1,157 @@
+---
+title: Wallets & Signing
+description: Derive deterministic wallets, sign transfers, secure secrets, and monitor balances.
+---
+
+`@qubiq/core/wallet` exposes everything you need to build wallet-aware libraries, CLIs, or desktop apps. This page summarizes the key APIs and how they compose.
+
+## Deterministic derivation
+
+```ts
+import { deriveWalletFromSeed } from "@qubiq/core";
+
+const wallet = await deriveWalletFromSeed("wqbdupxgcaimwdsnchitjmsplzclkqokhadgehdxqogeeiovzvadstt");
+console.log(wallet.identity); // SUZFF...
+```
+
+Internally we ship the same FourQ + KangarooTwelve WASM pipeline as the native node, so IDs match official tooling. Pass `{ accountIndex }` or use `deriveWalletFromPath(seed, "m/0/1'" )` for HD-style derivation.
+
+## HD derivation & account catalogs
+
+Derive multiple accounts from the same seed using BIP32-inspired paths. Every helper accepts a derivation path so you can deterministically produce custodial portfolios or multi-sig participants.
+
+```ts
+import { deriveWalletFromPath } from "@qubiq/core/wallet";
+
+const family = await Promise.all(
+  Array.from({ length: 3 }).map((_, index) =>
+    deriveWalletFromPath(seed, `m/0/${index}`),
+  ),
+);
+
+family.forEach(({ identity }, index) => {
+  console.log(`account[${index}] -> ${identity}`);
+});
+```
+
+Use account indices for app-managed wallets and custom paths for hardware-backed or team escrow flows. The helper validates path syntax so malformed derivations never reach WASM.
+
+### Identity helpers
+
+Normalize and convert identities whenever you accept user input or integrate with external registries.
+
+```ts
+import { identityToPublicKey, publicKeyToIdentity, normalizeIdentity } from "@qubiq/core/wallet";
+
+const normalized = normalizeIdentity(" suzffqscvphyybdcqodemfao... ".trim());
+const publicKeyHex = identityToPublicKey(normalized);
+const roundTrip = publicKeyToIdentity(publicKeyHex); // === normalized
+```
+
+Pair these utilities with schema validation (`IdentityStringSchema`) to keep REST handlers and CLI flags consistent.
+
+## Schnorr signing
+
+```ts
+const { tickInfo } = await client.getTickInfo();
+const signed = await wallet.signTransfer({
+  destinationPublicKey: "cd".repeat(32),
+  amount: BigInt(1_000_000),
+  tick: tickInfo.tick + 10,
+});
+await client.broadcastTransaction({ encodedTransaction: Buffer.from(signed.bytes).toString("base64") });
+```
+
+`signTransfer` returns canonical bytes + metadata (public key, hash, signature) so you can encode, store, or simulate transactions. Combine with `encodeTransaction` when you need a raw hex representation for debugging.
+
+### Signed transfer payload
+
+The response contains:
+
+- `bytes` – raw transaction bytes ready for base64 encoding.
+- `transactionId` – hash of the signed bytes (matches the native node output).
+- `sourcePublicKey` / `destinationPublicKey` – 32-byte hex strings.
+- `signature` – Schnorr signature as 64-byte hex.
+- `digest` – hex-encoded KangarooTwelve digest for auditing.
+
+## Secure storage
+
+```ts
+import { encryptSecret, decryptSecret } from "@qubiq/core";
+
+const encrypted = encryptSecret(seed, process.env.WALLET_PASS!);
+const decrypted = decryptSecret(encrypted, process.env.WALLET_PASS!);
+```
+
+Use these helpers to persist seeds/keys on disk; we zeroize buffers after use to reduce leakage.
+
+### Storage patterns
+
+- Encrypt at rest using user-provided passphrases (never hard-code keys).
+- Wrap `encryptSecret` before persisting to disk/KV so secrets only exist in memory briefly.
+- Pair with secrets-management APIs (e.g., AWS KMS) by storing the encrypted blob plus metadata about the wrapping key.
+
+## Offline bundles
+
+```ts
+import { createOfflineTransferBundle, signOfflineTransferBundle } from "@qubiq/core";
+
+const bundle = createOfflineTransferBundle({
+  sourcePublicKey: wallet.publicKey,
+  destinationPublicKey: "cd".repeat(32),
+  amount: BigInt(10_000),
+  tick: tickInfo.tick + 20,
+});
+
+const signed = await signOfflineTransferBundle(bundle, wallet.privateKey);
+```
+
+Bundles let you pre-approve transfers, pass them through air-gapped review, and broadcast later.
+
+### Air-gapped workflow
+
+1. `createOfflineTransferBundle` on an online machine (no private key required).
+2. Transfer the bundle to an air-gapped signer and call `signOfflineTransferBundle`.
+3. Return the signed payload and broadcast via `LiveServiceClient.broadcastTransaction`.
+
+You can serialize bundles as JSON to build approval queues or custody dashboards.
+
+## Watching balances
+
+```ts
+import { WalletWatcher } from "@qubiq/core";
+
+const watcher = new WalletWatcher({ identity: wallet.identity, pollIntervalMs: 5_000 });
+watcher.on("balanceChanged", ({ current }) => console.log("balance", current.balance));
+await watcher.start();
+```
+
+Under the hood this wraps `LiveServiceClient` and emits events only when values change.
+
+### Watcher events
+
+- `balanceChanged` — fires with `{ identity, previous, current }`.
+- `error` — emit network/parse errors for retry logic.
+- `started` / `stopped` — lifecycle hooks for metrics or logging.
+
+Hook watchers into the automation runtime to automatically emit Prometheus metrics (see `/automation/monitoring`).
+
+## Unsigned transfer payload
+
+When building custom tooling, construct an object with:
+
+- `sourcePublicKey` – 32-byte hex string.
+- `destinationPublicKey` – 32-byte hex string.
+- `amount` – `bigint` representing QUs.
+- `tick` – execution tick (typically `current + offset`).
+- `inputType` / `inputData` – optional contract payload.
+
+Feed that payload into `wallet.signTransfer` or `encodeTransaction` depending on your flow.
+
+## Build on top
+
+- Desktop wallet prototype (`@qubiq/wallet`) will consume these primitives.
+- Automation runtime wires watchers into pipelines automatically.
+- CLI tooling can reuse derivation + signing without touching WASM details.
+
+Reference implementations live in `/examples` (watcher, send, proposals) and `tests/wallet/*`. Start from those scripts when building sandboxes, and plug in ReactBits-powered UI (see landing page) for polished developer previews.

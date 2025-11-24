@@ -1,0 +1,93 @@
+---
+title: Wallet Service Guide
+description: Build a multi-wallet backend powered by @qubiq/core and @qubiq/sdk.
+---
+
+# Wallet service
+
+This guide takes you from zero to a basic wallet service API. You will:
+
+1. Derive wallets securely.
+2. Expose REST endpoints for balance + transfer.
+3. Stream balance updates to automation jobs.
+4. Hook into the SDK config loader for environment-specific deployments.
+
+## 1. Project setup
+
+```bash
+bun init wallet-service
+bun add @qubiq/core @qubiq/sdk hono
+```
+
+Create `qubiq.config.json`:
+
+```json
+{
+  "wallet": {
+    "seed": "${ENV:QUBIQ_SEED}",
+    "minTickOffset": 5,
+    "maxTickOffset": 90
+  },
+  "client": { "liveBaseUrl": "https://api.qubic.org" }
+}
+```
+
+## 2. Resolve the wallet & clients
+
+```ts
+import { loadQubiQSdkConfig, createQubiQSdk } from "@qubiq/sdk";
+
+const sdk = await createQubiQSdk(
+  await loadQubiQSdkConfig("./qubiq.config.json")
+);
+```
+
+`sdk.clients.live` gives you the HTTP client, `sdk.wallet` signs transfers, and `sdk.walletTools` encrypts seeds for backups.
+
+## 3. REST endpoints
+
+```ts
+import { Hono } from "hono";
+const app = new Hono();
+
+app.get("/balance", async (c) => {
+  const { balance } = await sdk.clients.live.getBalance({
+    identity: c.req.query("identity")!,
+  });
+  return c.json(balance);
+});
+
+app.post("/transfer", async (c) => {
+  const body = await c.req.json();
+  const response = await sdk.sendTransfer({
+    destination: body.destination,
+    amount: BigInt(body.amount),
+  });
+  return c.json(response);
+});
+```
+
+## 4. Balance streaming
+
+Enable automation with a console event bus during development:
+
+```ts
+const sdk = await createQubiQSdk({
+  walletConfig: { seed: process.env.QUBIQ_SEED },
+  automation: {
+    profile: "mainnet",
+    autoStart: true,
+    eventBus: true,
+  },
+});
+```
+
+Inside `automation.runtimeOptions.onBalanceChange`, push updates to WebSockets or Redis so your frontend can react instantly.
+
+## 5. Hardening
+
+- Use `createWalletTools().encrypt` to export encrypted backups after key rotation.
+- Persist guardrails from `resolveWallet` so every worker enforces the same tick offsets.
+- Enable `WebhookAutomationEventBus` to capture balance/proposal events centrally.
+
+Next steps: integrate the [transfer monitoring guide](/sdk/transfers/monitoring) to emit Prometheus metrics.

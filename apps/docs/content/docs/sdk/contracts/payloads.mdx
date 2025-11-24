@@ -1,0 +1,24 @@
+---
+title: Offline Payloads
+description: Encode and store contract payloads without a client.
+---
+
+# Offline payloads
+
+Use the encoder utilities to produce determinstic payloads for later use.
+
+```ts
+const proposalCall = encodeStruct("ComputorControlledFund_SetProposal_input", {
+  epoch: 200,
+  type: 0x100,
+  proposal: {
+    transfer: {
+      destination: "SUZ...",
+      amount: 100_000_000n,
+    },
+  },
+});
+await fs.writeFile("./payloads/proposal.bin", proposalCall);
+```
+
+Later, build an unsigned transaction that includes the payload. This is useful when auditors or governance participants need to review the proposal bytes before broadcasting.
