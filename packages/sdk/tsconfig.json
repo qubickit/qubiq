@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "module": "Preserve",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@clients/*": ["../core/src/clients/*"],
+      "@boot/*": ["../core/src/boot/*"],
+      "@connectors/*": ["../core/src/connectors/*"],
+      "@serialization/*": ["../core/src/serialization/*"],
+      "@node/*": ["../core/src/node/*"],
+      "@proposals/*": ["../core/src/proposals/*"],
+      "@crypto/*": ["../core/src/crypto/*"],
+      "@types": ["../core/src/types/index.ts"],
+      "@types/*": ["../core/src/types/*"],
+      "@wallet/*": ["../core/src/wallet/*"],
+      "@monitoring/*": ["../core/src/monitoring/*"],
+      "@interop": ["../core/src/interop/index.ts"],
+      "@interop/*": ["../core/src/interop/*"],
+      "@testing": ["../core/src/testing/index.ts"],
+      "@testing/*": ["../core/src/testing/*"],
+      "@src/*": ["../core/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

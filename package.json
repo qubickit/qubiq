@@ -1,62 +1,14 @@
 {
-  "name": "@qubickit/core",
-  "version": "0.1.0",
-  "description": "TypeScript SDK for interacting with Qubic nodes via Bun/Node runtimes.",
-  "keywords": [
-    "qubic",
-    "sdk",
-    "typescript",
-    "bun",
-    "node"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/qubickit/core.git"
-  },
-  "bugs": {
-    "url": "https://github.com/qubickit/core/issues"
-  },
-  "homepage": "https://github.com/qubickit/core#readme",
-  "module": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts"
-    }
-  },
-  "type": "module",
-  "private": false,
+  "name": "nexakit",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["packages/*"],
   "scripts": {
-    "build:node": "bun build ./src/index.ts --target node --outdir dist/node",
-    "build:browser": "bun build ./src/index.ts --target browser --outdir dist/browser --external:@grpc/grpc-js --external:@grpc/proto-loader",
-    "build": "bun run build:node && bun run build:browser",
-    "dev": "bun run ./src/index.ts",
-    "lint": "tsc --noEmit && biome check .",
-    "format": "biome format . --write",
-    "test": "bun test",
-    "clean": "rm -rf dist",
-    "example:boot": "bun run --bun ./examples/boot-flag.ts",
-    "example:watch": "bun run --bun ./examples/watch-balance.ts",
-    "example:send": "bun run --bun ./examples/send-transaction.ts",
-    "example:proposals": "bun run --bun ./examples/proposals-list.ts",
-    "example:automation": "bun run --bun ./examples/automation-runner.ts",
-    "example:dashboard": "bun run --bun ./examples/monitoring-dashboard.ts"
-  },
-  "engines": {
-    "bun": ">=1.0.0",
-    "node": ">=20.0.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.5",
-    "@types/bun": "^1.3.2",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "@grpc/grpc-js": "^1.10.5",
-    "@grpc/proto-loader": "^0.7.10",
-    "bignumber.js": "^9.3.1",
-    "react-bits": "^1.0.5",
-    "zod": "^4.1.12"
+    "lint": "bun run --cwd packages/core lint",
+    "test": "bun run --cwd packages/core test",
+    "build": "bun run --cwd packages/core build",
+    "format": "bun run --cwd packages/core format",
+    "dev:web": "bun run --cwd packages/web dev",
+    "build:web": "bun run --cwd packages/web build"
   }
 }

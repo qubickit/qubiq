@@ -1,0 +1,60 @@
+---
+title: QubicNodeClient
+description: A batteries-included façade that wraps live/query clients, watchers, and proposal workflows.
+---
+
+The `@nexakit/core/node` module exports `QubicNodeClient`, mirroring the official node’s capabilities with an SDK-friendly API.
+
+## Unified API
+
+```ts
+import { QubicNodeClient } from "@nexakit/core";
+
+const node = new QubicNodeClient({
+  liveBaseUrl: process.env.LIVE_URL,
+  queryServiceBaseUrl: process.env.QUERY_URL,
+});
+
+const { tickInfo } = await node.getTickInfo();
+const balance = await node.getBalance("SUZ...");
+const transactions = await node.getTransactionsForIdentity({ identity: "SUZ...", limit: 25 });
+```
+
+- Automatic client construction (unless you inject custom instances).
+- Methods map 1:1 to the HTTP clients underneath, so typing stays consistent.
+
+## Wallet watchers baked in
+
+```ts
+const watcher = node.watchWallet("SUZ...", { pollIntervalMs: 2_000 });
+watcher.on("balanceChanged", ({ identity, current }) => {
+  console.log(identity, current.balance);
+});
+await watcher.start();
+```
+
+This is handy when exposing watch APIs from your own SDK without re-creating the watcher wiring.
+
+## Proposal coordination
+
+```ts
+const coordinator = node.createProposalCoordinator(source);
+await coordinator.sync();
+```
+
+Use it to ingest remote proposal registries (CCF contract, GitHub JSON, etc.), apply workflows, and publish digests to your apps.
+
+## Swappable dependencies
+
+<details>
+  <summary>Why inject clients?</summary>
+
+- Add caching layers or rate-limiters.
+- Point to self-hosted infrastructure without touching consumers.
+- Record telemetry per-service while reusing the same façade.
+
+</details>
+
+## Works with automation runtimes
+
+Feed a `QubicNodeClient` into the automation runtime, transaction queue, or monitoring stack to keep your orchestration logic thin while still covering everything the public node does.

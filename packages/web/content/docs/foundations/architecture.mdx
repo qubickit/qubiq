@@ -1,0 +1,35 @@
+---
+title: Architecture
+description: Explore the three-layer design that mirrors the native Qubic node.
+---
+
+`@nexakit/core` is organized into three collaborative layers. Each aligns with a portion of `/qubic/core` so TypeScript apps stay in sync with upstream releases.
+
+## 1. Connector Layer
+
+- **Clients:** Live/Query HTTP clients plus a gRPC wrapper built on the expanded `live_service.proto`.
+- **Node connector:** `HttpConnector` manages poll intervals, dejavu handling, and tick cadence.
+- **Wallet watcher:** Streams balances via the live service and emits typed events.
+
+## 2. Serialization Layer
+
+- **Schemas:** Every request/response uses Zod validators that mirror the native structs (transactions, proposals, entity records, contract payloads).
+- **Encoders/Decoders:** Byte helpers convert transactions, headers, and contract payloads directly to native layouts.
+- **Type safety:** Shared types live under `@types` so downstream SDKs (CLI, desktop wallet) compile against a single source of truth.
+
+## 3. Wrapper Layer
+
+- **Wallet API:** Deterministic derivation (FourQ + KangarooTwelve), signing, secure storage, offline bundles, HD paths.
+- **Automation runtime:** Pipelines, scheduled jobs, transaction queues, and watchers designed for ops teams.
+- **Monitoring toolkit:** Tick/balance monitors, Prometheus metrics registry/server, instrumentation helpers, smoke tests.
+- **Proposal tooling:** Template registry, workflow helpers, CCF contract fetchers, and sample drafts.
+
+## Interop Surface
+
+The `proto/qubic/live_service.proto` file consolidates HTTP, stats, query-service, and archive endpoints. Once public gRPC access is available you can generate stubs from it; for now, the HTTP clients provide the supported surface. See [/interop](/interop) for usage.
+
+## Layered upgrades
+
+- **Core** stays minimal and type-safe.
+- **SDK** (CLI, starter kits, desktop app) builds on top without re-implementing serialization.
+- **Docs + `@nexakit/web`** surface guides, components, and contract playgrounds powered by this stack.

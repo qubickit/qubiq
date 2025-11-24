@@ -1,0 +1,40 @@
+---
+title: Module Reference
+description: A guided map of every public module exported from @nexakit/core.
+---
+
+Pick a module to dive in:
+
+<Cards>
+  <Card title="HTTP Clients" description="Live, Query, Archive REST bindings." href="/interop/clients" />
+  <Card title="Connectors & Node Facades" description="Event-driven connectors plus QubicNodeClient." href="/interop/connectors" />
+  <Card title="Wallets & Signing" description="Derivation, signing, secure storage, watchers." href="/wallets" />
+  <Card title="Automation Pipelines" description="Pipelines, transaction queues, runtimes." href="/automation" />
+  <Card title="Monitoring & Telemetry" description="Tick/balance monitors + Prometheus." href="/automation/monitoring" />
+  <Card title="Boot Management" description="Boot flags, state stores, restart logic." href="/automation/boot" />
+  <Card title="Serialization" description="Transaction and header encoders." href="/interop/serialization" />
+  <Card title="Proposals & CCF" description="Workflow helpers + contract queries." href="/governance" />
+  <Card title="Interop & Protos" description="gRPC client + swagger-backed proto." href="/interop" />
+  <Card title="Testing & Fixtures" description="Mocks, snapshot replays, smoke tests." href="/quality/testing" />
+  <Card title="Types & Schemas" description="Zod schemas for RPC + governance." href="/interop/types" />
+  <Card title="Utilities" description="Byte helpers, config, builders." href="/interop/utils" />
+</Cards>
+
+## How modules layer together
+
+<details>
+  <summary>Stack overview</summary>
+
+1. **Types & Serialization** — shared Zod schemas + byte encoders.
+2. **Clients & Connectors** — HTTP/gRPC bindings plus event emitters.
+3. **Wallets** — derivation, signing, watchers feeding automation.
+4. **Automation + Monitoring** — pipelines dispatch transfers, metrics observe them.
+5. **Proposals** — CCF contract helper + registries for governance-aware automation.
+
+</details>
+
+## Tips for SDK authors
+
+- Mix and match modules; everything exports plain classes/functions with rich typings.
+- Use the TypeScript/TSDoc guide to pull inline API references into your own docs.
+- Downstream packages (CLI, desktop wallet, @nexakit/sdk) will pull straight from these modules—mirror that approach in your libraries to stay compatible.
