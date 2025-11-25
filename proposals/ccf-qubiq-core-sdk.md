@@ -7,7 +7,7 @@
 ## Requested Transfer
 
 - **Amount:** 35,000,000,000 QUs (≈ $29,540 USD at 1B QUs ≈ $844)
-- **Destination:** `SUZFFQSCVPHYYBDCQODEMFAOKRJDDDIRJFFIWFLRDDJQRPKMJNOCSSKHXHGK`
+- **Destination:** `ZWXISOHAYWTAUGIQMDGTKKFWDDSCUBRJFDDFNNXPQADYIZXFFGFXAQQFVCMC`
 - **Epoch:** 188
 - **URL:** https://github.com/qubickit/core/blob/main/proposals/ccf-qubiq-core-sdk.md
 
