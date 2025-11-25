@@ -1,5 +1,5 @@
 {
-  "name": "qubiq",
+  "name": "qubickit",
   "private": true,
   "version": "1.0.0",
   "workspaces": ["packages/*", "apps/*"],
