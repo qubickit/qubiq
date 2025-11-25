@@ -70,7 +70,7 @@ await server.start();
 
 ## Request instrumentation
 
-Wrap any async call (HTTP, gRPC, DB) with `instrumentRequest`:
+Wrap any async call (HTTP or database) with `instrumentRequest`:
 
 ```ts
 import { instrumentRequest } from "@qubiq/core/monitoring";

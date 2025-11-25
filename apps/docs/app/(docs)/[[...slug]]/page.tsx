@@ -5,12 +5,24 @@ import { notFound } from "next/navigation";
 import { getPageImage, source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
 
-function resolveSlug(params: Awaited<PageProps<"/[[...slug]]">["params"]>) {
+function resolveSlug(params: Awaited<PageProps<"/[[...slug]]">["params"]>): string[] {
   const raw = params.slug;
-  if (Array.isArray(raw) && raw.length > 0) {
+  if (!raw) {
+    return [];
+  }
+
+  if (Array.isArray(raw)) {
+    if (raw.length === 0 || (raw.length === 1 && raw[0] === "index")) {
+      return [];
+    }
     return raw;
   }
-  return ["index"];
+
+  if (raw === "index") {
+    return [];
+  }
+
+  return [raw];
 }
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {

@@ -1,5 +1,5 @@
 {
   "title": "Core",
   "icon": "Cpu",
-  "pages": ["foundations", "wallets", "automation", "interop", "governance", "quality"]
+  "pages": ["index", "foundations", "wallets", "automation", "interop", "governance", "quality"]
 }

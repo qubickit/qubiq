@@ -3,7 +3,7 @@ title: Serialization & Wire Formats
 description: Encode and decode Qubic transactions, headers, and bytes without re-implementing the node.
 ---
 
-`@qubiq/core/serialization` keeps the tricky byte layouts close to the original C++ codebase. Downstream SDKs can reuse these helpers for signing flows, transaction builders, or gRPC bridges.
+`@qubiq/core/serialization` keeps the tricky byte layouts close to the original C++ codebase. Downstream SDKs reuse these helpers for signing flows, transaction builders, and any custom transport layers they implement.
 
 ## Transaction encoding
 

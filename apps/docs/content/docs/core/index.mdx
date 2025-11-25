@@ -1,0 +1,42 @@
+---
+title: Core Overview
+description: Map the major @qubiq/core modules before diving into each deep-dive page.
+---
+
+# QubiQ Core Overview
+
+Use this page as the table of contents for `@qubiq/core`. Each section below links to the detailed guides already present in the sidebar so you can jump directly to the area you need.
+
+## Foundations
+
+- [Getting Started](/core/foundations/getting-started) – install instructions, example scripts, and the recommended Bun/Node workflow.
+- [Architecture](/core/foundations/architecture) – how wallets, clients, automation, and telemetry fit together.
+- [Module Map](/core/foundations/modules) – quick reference for every public export.
+- [Configuration](/core/foundations/config) – live/query/archive client knobs and environment profiles.
+- [TypeScript Tooling](/core/foundations/typescript) – repo layout, lint/test commands, and contributor tips.
+
+## Wallets & Signing
+
+- [Wallet Toolkit](/core/wallets) – deterministic derivation, identity helpers, secure storage, offline bundles, and watchers.
+
+## Automation & Operations
+
+- [Runtime overview](/core/automation/index) – polling jobs, runtime composition, and balance snapshots.
+- [Monitoring & Telemetry](/core/automation/monitoring) – Tick/Balance monitors, Prometheus exporters, and instrumentation helpers.
+- [Boot Manager](/core/automation/boot) – ensure services resume safely after downtime.
+
+## Interop & Clients
+
+- [HTTP Clients](/core/interop/clients) – Live/Query/Archive clients with Zod validation.
+- [Connectors](/core/interop/connectors) – event-driven abstractions such as the `HttpConnector`.
+- [Node Client](/core/interop/node) – façade that combines the live/query stack.
+- [Serialization](/core/interop/serialization) – transaction/header encoders plus byte helpers.
+- [Schemas & Utils](/core/interop/types) – request/response Zod schemas, identity helpers, and codec utilities.
+- [Contract Metadata](/core/interop/contracts) – generated struct layouts for every upstream smart contract.
+
+## Governance & Quality
+
+- [Governance](/core/governance) – proposal registry, workflow helpers, and automation hooks.
+- [Quality & Testing](/core/quality/testing) – snapshot replay fixtures, mock clients, and best practices.
+
+Use the sidebar to explore individual topics or jump back here whenever you need to reorient yourself.
