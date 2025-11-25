@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": false,
   "type": "module",
-  "description": "Command-line tooling for automating QubiQ workflows (placeholder).",
+  "description": "Command-line tooling for automating QubicKit workflows (placeholder).",
   "scripts": {
     "dev": "echo 'CLI entrypoint coming soon'",
     "build": "echo 'CLI build pipeline pending'",

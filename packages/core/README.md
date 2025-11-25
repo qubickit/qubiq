@@ -1,4 +1,4 @@
-# QubiQ Core
+# QubicKit Core
 
 `@qubiq/core` is the TypeScript toolkit that mirrors the Qubic node lifecycle—deterministic wallets (FourQ/K12 WASM), HTTP clients, automation pipelines, proposal tooling, and observability helpers.
 
@@ -6,7 +6,7 @@
 
 | Resource    | URL                                          | Notes                                                            |
 | ----------- | -------------------------------------------- | ---------------------------------------------------------------- |
-| Docs site   | https://core.qubiq.dev                     | Primary reference (Getting Started, modules, interop, telemetry) |
+| Docs site   | https://core.qubickit.dev                     | Primary reference (Getting Started, modules, interop, telemetry) |
 | API package | https://www.npmjs.com/package/@qubiq/core | Install in Bun/Node projects                                     |
 | Examples    | `examples/`                                  | Runnable scripts mirrored in the docs                            |
 
@@ -43,7 +43,7 @@ More scenarios—automation pipelines, proposal workflows, observability—are d
 ```bash
 cd ../../apps/docs
 bun install
-bun dev  # serves https://core.qubiq.dev locally
+bun dev  # serves https://core.qubickit.dev locally
 ```
 
 The site uses Fumadocs + Next.js App Router. Content lives under `apps/docs/content/docs`.
@@ -67,7 +67,7 @@ CI mirrors this command. Integration tests rely on local mock servers (no public
 | `proto/`    | Canonical `live_service.proto` used by both HTTP and gRPC layers                                     |
 | `tests/`    | Bun test suites (unit, integration, automation, interop, smoke)                                      |
 | `examples/` | Runnable scripts referenced by the docs                                                              |
-| `../web/`   | Next.js/Fumadocs site served at https://core.qubiq.dev                                             |
+| `../web/`   | Next.js/Fumadocs site served at https://core.qubickit.dev                                             |
 
 ## Contributing
 

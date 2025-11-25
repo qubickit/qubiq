@@ -1,4 +1,4 @@
-# QubiQ SDK
+# QubicKit SDK
 
 `@qubiq/sdk` builds on top of `@qubiq/core` to offer higher-level orchestration helpers. The first milestone ships `createQubiQSdk`, a convenience bootstrapper that:
 

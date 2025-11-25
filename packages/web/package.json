@@ -1,7 +1,7 @@
 {
   "name": "@qubiq/web",
   "version": "0.0.0",
-  "description": "Shared React components, hooks, and utilities for QubiQ web clients (coming soon).",
+  "description": "Shared React components, hooks, and utilities for QubicKit web clients (coming soon).",
   "type": "module",
   "private": false,
   "exports": {},
