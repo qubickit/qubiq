@@ -51,7 +51,7 @@ const { proposals, activeIndices } = await fetchCcfProposalsFromContract(client)
 console.log(activeIndices, proposals.length);
 ```
 
-This hits the CCF contract directly via HTTP (or the gRPC equivalent) and decodes payloads into typed proposals. We follow the official layout documented in `ccf.h`.
+This hits the CCF contract directly via the public HTTP RPC and decodes payloads into typed proposals. We follow the official layout documented in `ccf.h` so the same helper can power future transports when available.
 
 ## Finalization utilities
 

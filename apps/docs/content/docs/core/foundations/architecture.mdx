@@ -7,7 +7,7 @@ description: Explore the three-layer design that mirrors the native Qubic node.
 
 ## 1. Connector Layer
 
-- **Clients:** Live/Query HTTP clients plus a gRPC wrapper built on the expanded `live_service.proto`.
+- **Clients:** Live/Query HTTP clients that track the swagger specs (gRPC will arrive once Qubic exposes the port).
 - **Node connector:** `HttpConnector` manages poll intervals, dejavu handling, and tick cadence.
 - **Wallet watcher:** Streams balances via the live service and emits typed events.
 

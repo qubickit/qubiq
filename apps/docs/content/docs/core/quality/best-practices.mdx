@@ -8,7 +8,7 @@ This library targets developers building SDKs, CLIs, bots, or dashboards on top 
 ## Prefer high-level wrappers
 
 - Use `QubicNodeClient` unless you explicitly need raw HTTP clients.
-- When gRPC endpoints become public, re-use `live_service.proto` instead of rolling your own serialization.
+- Public RPCs don’t expose gRPC yet; if you self-host or when it opens up, generate stubs from `live_service.proto` instead of rolling custom codecs.
 - Wrap automation runtime profiles when building bots to avoid duplicating scheduling logic.
 
 ## Validate inputs early

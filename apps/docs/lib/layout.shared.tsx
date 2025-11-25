@@ -10,7 +10,7 @@ export function baseOptions(): BaseLayoutProps {
     },
     githubUrl: 'https://github.com/qubickit/core',
     nav: {
-      title: navTitle('QubiQ Docs'),
+      title: navTitle('QubicKit Docs'),
       url: '/',
     },
     links: [

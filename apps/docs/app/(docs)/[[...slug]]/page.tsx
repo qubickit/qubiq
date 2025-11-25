@@ -7,10 +7,13 @@ import { getMDXComponents } from "@/mdx-components";
 
 function resolveSlug(params: Awaited<PageProps<"/[[...slug]]">["params"]>) {
   const raw = params.slug;
-  if (Array.isArray(raw) && raw.length > 0) {
-    return raw;
+  if (!raw || raw.length === 0) {
+    return [];
   }
-  return ["index"];
+  if (raw.length === 1 && raw[0] === "index") {
+    return [];
+  }
+  return raw;
 }
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {

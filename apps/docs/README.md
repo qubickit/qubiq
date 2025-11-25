@@ -1,6 +1,6 @@
-# QubiQ Docs
+# QubicKit Docs
 
-This Next.js/Fumadocs application powers https://core.qubiq.dev. It's located under `apps/docs` in the monorepo.
+This Next.js/Fumadocs application powers https://core.qubickit.dev. It's located under `apps/docs` in the monorepo.
 
 Run the documentation site locally:
 

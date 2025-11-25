@@ -3,7 +3,7 @@ title: Developer Experience
 description: How to run @qubiq/core locally, explore examples, and extend the toolkit.
 ---
 
-This project is designed to feel great in everyday workflows—Bun for scripts/tests, Fumadocs for docs, and a set of runnable examples that mirror the guides on [core.qubiq.dev](https://core.qubiq.dev).
+This project is designed to feel great in everyday workflows—Bun for scripts/tests, Fumadocs for docs, and a set of runnable examples that mirror the guides on [core.qubickit.dev](https://core.qubickit.dev).
 
 ## Local setup
 
@@ -42,7 +42,7 @@ Examples accept `--help` to show flags. Environment variables (`QUBIC_SEED`, `QU
 - `bun test path/to/file.test.ts` focuses on a single area—handy for wallet or interop work.
 - `bun run lint` type-checks + Biome formats everything.
 
-Need a quick gRPC playground? See `tests/interop/grpc-live-service.test.ts` for a fully in-process mock server you can adapt.
+Running a self-hosted node and experimenting with gRPC? See `tests/interop/grpc-live-service.test.ts` for a fully in-process mock server you can adapt—public RPCs remain HTTP-only.
 
 ## Recommended workflow
 
@@ -50,4 +50,4 @@ Need a quick gRPC playground? See `tests/interop/grpc-live-service.test.ts` for 
 2. Keep `bun test --watch` running for tight feedback.
 3. Use `examples/` as scratchpads when building new guides. Once an example is stable, reference it from the docs.
 
-That’s it—the rest of the docs dive into modules like wallets, automation, interop, and monitoring, all available at [core.qubiq.dev](https://core.qubiq.dev).
+That’s it—the rest of the docs dive into modules like wallets, automation, interop, and monitoring, all available at [core.qubickit.dev](https://core.qubickit.dev).
